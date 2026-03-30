@@ -1,9 +1,22 @@
 const { pool } = require('../config/database');
-
-const getAllCourses = async (req, res) => {
+const jwt = require('jsonwebtoken');const getAllCourses = async (req, res) => {
   try {
     const { search, page = 1, limit = 12 } = req.query;
     const offset = (page - 1) * limit;
+
+    let isAdmin = false;
+    const authHeader = req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.replace('Bearer ', '');
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded && decoded.role === 'admin') {
+          isAdmin = true;
+        }
+      } catch (error) {
+        // Ignore token errors for public route
+      }
+    }
 
     let query = `
       SELECT c.*, u.name as instructor_name, 
@@ -14,8 +27,16 @@ const getAllCourses = async (req, res) => {
     `;
     const params = [];
 
+    if (!isAdmin) {
+      query += ` WHERE c.status = 'published'`;
+    }
+
     if (search) {
-      query += ' WHERE c.title LIKE ? OR c.description LIKE ?';
+      if (!isAdmin) {
+        query += ' AND (c.title LIKE ? OR c.description LIKE ?)';
+      } else {
+        query += ' WHERE (c.title LIKE ? OR c.description LIKE ?)';
+      }
       params.push(`%${search}%`, `%${search}%`);
     }
 
@@ -24,12 +45,23 @@ const getAllCourses = async (req, res) => {
 
     const [courses] = await pool.query(query, params);
 
-    const [countResult] = await pool.query(
-      search 
-        ? 'SELECT COUNT(*) as total FROM courses WHERE title LIKE ? OR description LIKE ?'
-        : 'SELECT COUNT(*) as total FROM courses',
-      search ? [`%${search}%`, `%${search}%`] : []
-    );
+    let countQuery = "SELECT COUNT(*) as total FROM courses";
+    const countParams = [];
+
+    if (!isAdmin) {
+      countQuery += " WHERE status = 'published'";
+    }
+
+    if (search) {
+      if (!isAdmin) {
+        countQuery += " AND (title LIKE ? OR description LIKE ?)";
+      } else {
+        countQuery += " WHERE (title LIKE ? OR description LIKE ?)";
+      }
+      countParams.push(`%${search}%`, `%${search}%`);
+    }
+
+    const [countResult] = await pool.query(countQuery, countParams);
 
     res.json({
       courses,

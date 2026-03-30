@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, BookOpen, Calendar, CheckCircle, Clock, CreditCard, Eye, X, AlertCircle, Upload, Video } from 'lucide-react';
 import { enrollmentsAPI, paymentsAPI, classLinkAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getPaymentProofUrl } from '../utils/apiUrl';
 
 const AdminEnrollments = () => {
   const [enrollments, setEnrollments] = useState([]);
@@ -293,7 +294,7 @@ const AdminEnrollments = () => {
                   <div>
                     <label className="text-xs text-gray-500 uppercase tracking-wide mb-2 block">Payment Proof</label>
                     <img
-                      src={`http://localhost:5000${selectedPayment.proof_path}`}
+                      src={getPaymentProofUrl(selectedPayment.proof_path)}
                       alt="Payment proof"
                       className="w-full max-h-96 object-contain rounded-xl border border-gray-200"
                     />

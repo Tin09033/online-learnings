@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-surface-base text-gray-900 dark:bg-gray-900 dark:text-gray-100;
   }
   
   .dark body {
@@ -12,9 +12,144 @@
   }
 }
 
+@layer components {
+  /* Card with depth hierarchy */
+  .card-raised {
+    @apply bg-surface-raised shadow-depth-md rounded-2xl dark:bg-gray-800 dark:border dark:border-gray-700;
+  }
+  
+  .card-base {
+    @apply bg-surface-base shadow-depth-sm rounded-2xl dark:bg-gray-800 dark:border dark:border-gray-800;
+  }
+  
+  .card-sunken {
+    @apply bg-surface-sunken shadow-inset-sm rounded-2xl dark:bg-gray-900 dark:border dark:border-gray-800;
+  }
+  
+  /* Interactive card with hover elevation */
+  .card-interactive {
+    @apply bg-surface-raised shadow-depth-md rounded-2xl dark:bg-gray-800 dark:border dark:border-gray-700 
+           transition-all duration-300 ease-out
+           hover:shadow-depth-xl hover:-translate-y-1;
+  }
+  
+  /* Button depth styles */
+  .btn-elevated {
+    @apply relative overflow-hidden
+           bg-primary-600 text-white
+           shadow-dual-md rounded-xl
+           transition-all duration-200
+           hover:shadow-dual-lg hover:-translate-y-0.5
+           active:shadow-dual-sm active:translate-y-0;
+  }
+  
+  .btn-elevated::before {
+    content: '';
+    @apply absolute inset-0 bg-elevated pointer-events-none;
+  }
+  
+  /* Input/Select with sunken effect */
+  .input-sunken {
+    @apply bg-surface-sunken shadow-sunken-sm rounded-xl dark:bg-gray-900 dark:text-gray-100 dark:border dark:border-gray-700
+           border-0 outline-none
+           focus:ring-2 focus:ring-primary-500/30 focus:bg-surface-base dark:focus:bg-gray-800
+           transition-all duration-200;
+  }
+  
+  /* Progress bar with depth */
+  .progress-track {
+    @apply bg-surface-sunken shadow-inset-sm rounded-full overflow-hidden dark:bg-gray-700;
+  }
+  
+  .progress-fill {
+    @apply bg-primary-gradient shadow-dual-sm rounded-full
+           transition-all duration-500 ease-out;
+  }
+  
+  /* Navigation depth layering */
+  .nav-depth {
+    @apply bg-surface-raised shadow-dual-sm dark:bg-gray-800 dark:border-b dark:border-gray-700;
+  }
+  
+  /* Dropdown with shiny effect */
+  .dropdown-elevated {
+    @apply bg-surface-raised shadow-depth-lg rounded-xl dark:bg-gray-800
+           border border-gray-100/50 dark:border-gray-700
+           bg-gradient-to-b from-white to-gray-50/30 dark:from-gray-800 dark:to-gray-900;
+  }
+  
+  /* Badge with glow */
+  .badge-glow {
+    @apply bg-primary-100 text-primary-700 
+           shadow-glow-primary-sm rounded-full
+           font-medium text-sm px-3 py-1;
+  }
+  
+  /* Section depth containers */
+  .section-base {
+    @apply bg-surface-base dark:bg-gray-800;
+  }
+  
+  .section-raised {
+    @apply bg-surface-raised shadow-depth-sm dark:bg-gray-800;
+  }
+  
+  .section-lowered {
+    @apply bg-surface-lowered dark:bg-gray-900;
+  }
+}
+
 @layer utilities {
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400;
+  }
+  
+  /* Depth layering utilities */
+  .depth-0 { background-color: #ffffff; }
+  .depth-1 { background-color: #f8fafc; }
+  .depth-2 { background-color: #f1f5f9; }
+  .depth-3 { background-color: #e2e8f0; }
+  .depth-4 { background-color: #cbd5e1; }
+  
+  /* Light source simulation - lighter on top */
+  .light-from-top {
+    background: linear-gradient(to bottom, 
+      rgba(255, 255, 255, 0.15) 0%, 
+      rgba(255, 255, 255, 0) 30%
+    );
+  }
+
+  .dark .light-from-top {
+    background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0) 30%
+    );
+  }
+  
+  .light-from-top-strong {
+    background: linear-gradient(to bottom, 
+      rgba(255, 255, 255, 0.25) 0%, 
+      rgba(255, 255, 255, 0) 50%
+    );
+  }
+
+  .dark .light-from-top-strong {
+    background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0) 50%
+    );
+  }
+  
+  /* Hover lift effect */
+  .hover-lift {
+    @apply transition-all duration-300 ease-out
+           hover:-translate-y-1 hover:shadow-depth-lg;
+  }
+  
+  /* Focus glow */
+  .focus-glow {
+    @apply focus:ring-2 focus:ring-primary-500/30 focus:shadow-glow-primary-sm
+           transition-all duration-200;
   }
 }
 

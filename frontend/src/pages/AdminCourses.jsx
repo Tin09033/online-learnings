@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Plus, Edit, Trash2, BookOpen, AlertTriangle } from 'lucide-react';
 import { coursesAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getCourseImageUrl } from '../utils/apiUrl';
 
 const AdminCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -116,7 +117,7 @@ const AdminCourses = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-4">
                           <img
-                            src={course.image ? `http://localhost:5000${course.image}` : '/placeholder.jpg'}
+                            src={getCourseImageUrl(course.image)}
                             alt={course.title}
                             className="w-16 h-16 object-cover rounded-lg"
                           />

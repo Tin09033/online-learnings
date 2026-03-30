@@ -1,8 +1,11 @@
 node_modules/
+dist/
 .env
 .env.production
+.env.local
 .DS_Store
 *.log
 .vite/
 uploads/*
 !uploads/.gitkeep
+logs/

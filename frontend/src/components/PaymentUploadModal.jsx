@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, CreditCard, Smartphone, FileText, Check, AlertCircle, Image, QrCode, Copy, CheckCircle } from 'lucide-react';
 import { paymentsAPI, enrollmentsAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getPaymentProofUrl, getQrCodeUrl } from '../utils/apiUrl';
 
 const PaymentUploadModal = ({ isOpen, onClose, enrollment, courseAmount, onSuccess, onEnrollSuccess }) => {
   const [notes, setNotes] = useState('');
@@ -70,7 +71,7 @@ const PaymentUploadModal = ({ isOpen, onClose, enrollment, courseAmount, onSucce
         setExistingPayment(response.data);
         setNotes(response.data.notes || '');
         if (response.data.proof_path) {
-          setPreview(`http://localhost:5000${response.data.proof_path}`);
+          setPreview(getPaymentProofUrl(response.data.proof_path));
         }
       }
     } catch (error) {
@@ -267,7 +268,7 @@ const PaymentUploadModal = ({ isOpen, onClose, enrollment, courseAmount, onSucce
                       <p className="text-sm font-medium text-gray-700 mb-4">Scan QR Code to Pay</p>
                       <div className="flex justify-center">
                         <img
-                          src={`http://localhost:5000${bankDetails.qr_code_path}`}
+                          src={getQrCodeUrl(bankDetails.qr_code_path)}
                           alt="Payment QR Code"
                           className="w-full max-w-xs h-auto object-cover rounded-lg shadow-md bg-white p-2"
                         />

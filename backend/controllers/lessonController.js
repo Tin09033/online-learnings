@@ -27,10 +27,6 @@ const createLesson = async (req, res) => {
     const videoFile = files.find(f => f.fieldname === 'video_file');
     const documentFile = files.find(f => f.fieldname === 'document_file');
 
-    console.log('Create lesson - body:', req.body);
-    console.log('Create lesson - video file:', videoFile);
-    console.log('Create lesson - document file:', documentFile);
-
     if (!title) {
       return res.status(400).json({ message: 'Title is required' });
     }
@@ -68,12 +64,6 @@ const updateLesson = async (req, res) => {
     
     const videoFile = files.find(f => f.fieldname === 'video_file');
     const documentFile = files.find(f => f.fieldname === 'document_file');
-
-    console.log('Update lesson - body:', req.body);
-    console.log('Update lesson - video file:', videoFile);
-    console.log('Update lesson - document file:', documentFile);
-    console.log('Remove video:', remove_video_file);
-    console.log('Remove document:', remove_document_file);
 
     const [existing] = await pool.query('SELECT * FROM lessons WHERE id = ?', [id]);
     if (existing.length === 0) {

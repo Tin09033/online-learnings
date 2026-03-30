@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, Play, CheckCircle, ChevronLeft, ChevronRight, Clock, Video, FileText, Download, Lock, X } from 'lucide-react';
 import { coursesAPI, lessonProgressAPI, handoutAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getHandoutUrl, getVideoUrl, getDocumentUrl } from '../utils/apiUrl';
 
 const CourseLearning = () => {
   const { id } = useParams();
@@ -150,7 +151,7 @@ const CourseLearning = () => {
         </div>
 
         {handouts.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+          <div className="card-raised p-6">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <FileText className="h-6 w-6 text-green-600" />
               Course Handouts Preview ({handouts.length})
@@ -168,7 +169,7 @@ const CourseLearning = () => {
                     <FileText className="h-5 w-5 text-gray-400" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{handout.title}</span>
                   </div>
-                  <p className="text-xs text-gray-500">Available after enrollment</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Available after enrollment</p>
                 </div>
               ))}
             </div>
@@ -195,7 +196,7 @@ const CourseLearning = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring' }}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center max-w-md mx-4"
+            className="card-raised p-8 text-center max-w-md mx-4"
           >
             <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="h-10 w-10 text-green-500" />
@@ -214,14 +215,14 @@ const CourseLearning = () => {
           </Link>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{course.title}</h1>
         </div>
-        <div className="bg-blue-500 text-white px-4 py-2 rounded-lg">
+        <div className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-dual-sm">
           <span className="font-semibold">{progress}%</span> Complete
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sticky top-4">
+          <div className="card-raised p-4 sticky top-4">
             <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
               Course Modules
@@ -267,7 +268,7 @@ const CourseLearning = () => {
                 {handouts.map((handout) => (
                   <a
                     key={handout.id}
-                    href={`http://localhost:5000${handout.file_path}`}
+                    href={getHandoutUrl(handout.file_path)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between gap-2 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30 transition-all"
@@ -285,7 +286,7 @@ const CourseLearning = () => {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+          <div className="card-raised overflow-hidden">
             {selectedLesson ? (
               <>
                 <div className="p-6 border-b border-gray-200 dark:border-gray-700">
@@ -316,7 +317,7 @@ const CourseLearning = () => {
                 {selectedLesson.video_file && (
                   <div className="aspect-video bg-black">
                     <video
-                      src={`http://localhost:5000${selectedLesson.video_file}`}
+                      src={getVideoUrl(selectedLesson.video_file)}
                       controls
                       className="w-full h-full"
                     />
@@ -324,9 +325,9 @@ const CourseLearning = () => {
                 )}
 
                 {selectedLesson.document_file && (
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="m-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <a
-                      href={`http://localhost:5000${selectedLesson.document_file}`}
+                      href={getDocumentUrl(selectedLesson.document_file)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-200"
@@ -394,7 +395,7 @@ const CourseLearning = () => {
                 </div>
               </>
             ) : (
-              <div className="p-12 text-center">
+              <div className="p-12 text-center dark:bg-gray-800">
                 <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">Select a lesson to start learning</p>
               </div>

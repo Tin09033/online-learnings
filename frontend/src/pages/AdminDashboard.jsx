@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useTheme } from '../context/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
+import { getCourseImageUrl } from '../utils/apiUrl';
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
@@ -112,7 +113,7 @@ const AdminDashboard = () => {
               {stats?.recentCourses?.slice(0, 5).map((course) => (
                 <div key={course.id} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                   <img
-                    src={course.image ? `http://localhost:5000${course.image}` : '/placeholder.jpg'}
+                    src={getCourseImageUrl(course.image)}
                     alt={course.title}
                     className="w-16 h-16 object-cover rounded-lg"
                   />

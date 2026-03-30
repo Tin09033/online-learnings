@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { enrollmentsAPI } from '../services/api';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
+import { getCourseImageUrl } from '../utils/apiUrl';
 
 const StudentCourses = () => {
   const { user } = useAuth();
@@ -320,7 +321,7 @@ const StudentCourses = () => {
               >
                 <div className="h-40 overflow-hidden relative">
                   <img
-                    src={enrollment.course_image ? `http://localhost:5000${enrollment.course_image}` : '/placeholder.jpg'}
+                    src={getCourseImageUrl(enrollment.course_image)}
                     alt={enrollment.title}
                     className="w-full h-full object-cover"
                   />

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2, Edit, Save, Image as ImageIcon, AlertTriangle, Upload, FileVideo, X, FileText } from 'lucide-react';
 import { coursesAPI, lessonsAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getUploadUrl, getVideoUrl } from '../utils/apiUrl';
 
 const CourseEditor = () => {
   const { id } = useParams();
@@ -50,7 +51,7 @@ const CourseEditor = () => {
       });
       setLessons(courseData.lessons || []);
       if (courseData.image) {
-        setImagePreview(`http://localhost:5000${courseData.image}`);
+        setImagePreview(getUploadUrl(courseData.image));
       }
     } catch (error) {
       toast.error('Failed to load course');
@@ -104,7 +105,7 @@ const CourseEditor = () => {
 
   const clearVideoFile = () => {
     setVideoFile(null);
-    if (videoFilePreview && !videoFilePreview.startsWith('http://localhost:5000')) {
+    if (videoFilePreview && !videoFilePreview.startsWith('http') && !videoFilePreview.startsWith('/uploads')) {
       URL.revokeObjectURL(videoFilePreview);
     }
     if (editingLesson?.video_file) {
@@ -275,7 +276,7 @@ const CourseEditor = () => {
     setEditingLesson(lesson);
     if (lesson.video_file) {
       setVideoFile(null);
-      setVideoFilePreview(`http://localhost:5000${lesson.video_file}`);
+      setVideoFilePreview(getVideoUrl(lesson.video_file));
     } else {
       setVideoFile(null);
       setVideoFilePreview(null);

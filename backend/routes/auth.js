@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const { register, login, getMe, updateProfile, changePassword, updateAvatar, updateNotifications, getLearningStats } = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
+const { registerValidation, loginValidation, updateProfileValidation, changePasswordValidation } = require('../middleware/validation');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -29,11 +30,11 @@ const upload = multer({
   }
 });
 
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', registerValidation, register);
+router.post('/login', loginValidation, login);
 router.get('/me', auth, getMe);
-router.put('/profile', auth, updateProfile);
-router.put('/password', auth, changePassword);
+router.put('/profile', auth, updateProfileValidation, updateProfile);
+router.put('/password', auth, changePasswordValidation, changePassword);
 router.post('/avatar', auth, upload.single('avatar'), updateAvatar);
 router.put('/notifications', auth, updateNotifications);
 router.get('/learning-stats', auth, getLearningStats);

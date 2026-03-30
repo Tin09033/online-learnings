@@ -6,6 +6,7 @@ import { coursesAPI, enrollmentsAPI, lessonProgressAPI, handoutAPI, announcement
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import PaymentUploadModal from '../components/PaymentUploadModal';
+import { getHandoutUrl, getVideoUrl } from '../utils/apiUrl';
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -56,10 +57,10 @@ const CourseDetail = () => {
     };
     window.addEventListener('focus', handleFocus);
     const interval = setInterval(() => {
-      if (courseRef.current?.enrollment && courseRef.current.enrollment.status !== 'completed') {
+      if (courseRef.current?.enrollment && courseRef.current.enrollment.status === 'pending') {
         fetchCourse();
       }
-    }, 3000);
+    }, 30000);
     return () => {
       window.removeEventListener('focus', handleFocus);
       clearInterval(interval);
@@ -285,7 +286,7 @@ const CourseDetail = () => {
   const allLessonsCompleted = completedCount === totalLessons && totalLessons > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       <AnimatePresence>
         {showCelebration && (
           <motion.div
@@ -298,7 +299,7 @@ const CourseDetail = () => {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-white rounded-3xl p-12 text-center max-w-lg mx-4 shadow-2xl"
+              className="card-raised p-12 text-center max-w-lg mx-4 shadow-2xl"
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -310,8 +311,8 @@ const CourseDetail = () => {
                   <PartyPopper className="h-12 w-12 text-white" />
                 </div>
               </motion.div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Congratulations!</h2>
-              <p className="text-gray-600 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Congratulations!</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 You've completed the entire course! Great job on your learning journey.
               </p>
               <div className="flex items-center justify-center space-x-2 text-yellow-600 mb-6">
@@ -392,7 +393,7 @@ const CourseDetail = () => {
                     Start Learning
                   </button>
                 </div>
-              ) : course.enrollment.status === 'pending' || course.enrollment.status === 'active' ? (
+              ) : course.enrollment.status === 'pending' && paymentStatus?.status !== 'verified' ? (
                 <div className="space-y-4">
                   <div className="bg-yellow-500/20 text-white px-6 py-3 rounded-xl inline-flex items-center space-x-2">
                     <Clock className="h-5 w-5" />
@@ -484,8 +485,8 @@ const CourseDetail = () => {
               {course.enrollment && (handouts.length > 0 || announcements.length > 0) && (
                 <div className="mt-8 space-y-6">
                   {handouts.length > 0 && (
-                    <div className="bg-white rounded-2xl shadow-lg p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                    <div className="card-raised p-6">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
                         <FileText className="h-5 w-5" />
                         <span>Course Materials</span>
                       </h3>
@@ -493,18 +494,18 @@ const CourseDetail = () => {
                         {handouts.map((handout) => (
                           <a
                             key={handout.id}
-                            href={`http://localhost:5000${handout.file_path}`}
+                            href={getHandoutUrl(handout.file_path)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                            className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                           >
                             <div className="text-2xl">
                               {handout.file_type?.includes('pdf') ? '📄' : '📎'}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="font-medium text-gray-900 truncate">{handout.title}</div>
+                              <div className="font-medium text-gray-900 dark:text-white truncate">{handout.title}</div>
                               {handout.description && (
-                                <div className="text-xs text-gray-500 truncate">{handout.description}</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{handout.description}</div>
                               )}
                             </div>
                             <Download className="h-5 w-5 text-gray-400" />
@@ -515,8 +516,8 @@ const CourseDetail = () => {
                   )}
 
                   {announcements.length > 0 && (
-                    <div className="bg-white rounded-2xl shadow-lg p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                    <div className="card-raised p-6">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
                         <Megaphone className="h-5 w-5" />
                         <span>Announcements</span>
                       </h3>
@@ -526,10 +527,10 @@ const CourseDetail = () => {
                             key={announcement.id}
                             className={`p-4 rounded-xl ${
                               announcement.priority === 'urgent'
-                                ? 'bg-red-50 border-l-4 border-red-500'
+                                ? 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500'
                                 : announcement.priority === 'important'
-                                ? 'bg-yellow-50 border-l-4 border-yellow-500'
-                                : 'bg-blue-50 border-l-4 border-blue-500'
+                                ? 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500'
+                                : 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500'
                             }`}
                           >
                             <div className="flex items-start space-x-3">
@@ -544,19 +545,19 @@ const CourseDetail = () => {
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center justify-between mb-1">
-                                  <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
+                                  <h4 className="font-semibold text-gray-900 dark:text-white">{announcement.title}</h4>
                                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                                     announcement.priority === 'urgent'
-                                      ? 'bg-red-100 text-red-700'
+                                      ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                                       : announcement.priority === 'important'
-                                      ? 'bg-yellow-100 text-yellow-700'
-                                      : 'bg-blue-100 text-blue-700'
+                                      ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                                      : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
                                   }`}>
                                     {announcement.priority}
                                   </span>
                                 </div>
-                                <p className="text-gray-600 text-sm whitespace-pre-wrap">{announcement.content}</p>
-                                <div className="text-xs text-gray-500 mt-2">
+                                <p className="text-gray-600 dark:text-gray-300 text-sm whitespace-pre-wrap">{announcement.content}</p>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                                   {new Date(announcement.created_at).toLocaleDateString()}
                                 </div>
                               </div>
@@ -574,20 +575,20 @@ const CourseDetail = () => {
       </section>
 
       {totalLessons > 0 && (
-        <section className="py-12 bg-white">
+        <section className="py-12 bg-white dark:bg-gray-900 transition-colors duration-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <List className="h-6 w-6" />
                 Course Curriculum
               </h2>
-              <span className="text-gray-500">{totalLessons} lessons</span>
+              <span className="text-gray-500 dark:text-gray-400">{totalLessons} lessons</span>
             </div>
 
             {totalLessons === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-2xl">
+              <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-2xl">
                 <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No lessons available yet. Check back soon!</p>
+                <p className="text-gray-500 dark:text-gray-400">No lessons available yet. Check back soon!</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -601,18 +602,18 @@ const CourseDetail = () => {
                       className={`border rounded-xl overflow-hidden transition-all ${
                         isSelected 
                           ? 'border-primary-500 shadow-lg' 
-                          : 'border-gray-200 hover:border-gray-300'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                       } ${!course.enrollment ? 'opacity-75' : ''}`}
                     >
                       <button
                         onClick={() => course.enrollment ? handleLessonSelect(lesson, index) : toast.info('Please enroll to access lessons')}
-                        className="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
+                        className="w-full px-6 py-4 flex items-center justify-between bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       >
                         <div className="flex items-center gap-4">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                             isCompleted 
                               ? 'bg-green-100 text-green-600' 
-                              : 'bg-gray-100 text-gray-600'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                           }`}>
                             {isCompleted ? (
                               <CheckCircle className="h-5 w-5" />
@@ -621,10 +622,10 @@ const CourseDetail = () => {
                             )}
                           </div>
                           <div className="text-left">
-                            <h3 className={`font-semibold ${isCompleted ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                            <h3 className={`font-semibold ${isCompleted ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>
                               {lesson.title}
                             </h3>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                               {lesson.video_url ? 'Video lesson' : 'Text lesson'} • {getContentDuration(lesson.content)}
                             </p>
                           </div>
@@ -645,12 +646,12 @@ const CourseDetail = () => {
                             transition={{ duration: 0.2 }}
                             className="overflow-hidden"
                           >
-                            <div className="px-6 py-6 bg-gray-50 border-t border-gray-200">
-                              {lesson.video_url && (
+                            <div className="px-6 py-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+                              {(lesson.video_url || lesson.video_file) && (
                                 <div className="mb-6">
                                   <div className="aspect-video bg-black rounded-xl overflow-hidden">
                                     <video
-                                      src={lesson.video_url}
+                                      src={lesson.video_file ? getVideoUrl(lesson.video_file) : lesson.video_url}
                                       controls
                                       className="w-full h-full object-contain"
                                     />
@@ -659,18 +660,18 @@ const CourseDetail = () => {
                               )}
                               
                               {lesson.content && (
-                                <div className="prose prose-gray max-w-none mb-6">
-                                  <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                                <div className="prose prose-gray dark:prose-invert max-w-none mb-6">
+                                  <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed">
                                     {lesson.content}
                                   </div>
                                 </div>
                               )}
 
                               {!lesson.video_url && !lesson.content && (
-                                <p className="text-gray-500 italic">No content available for this lesson.</p>
+                                <p className="text-gray-500 dark:text-gray-400 italic">No content available for this lesson.</p>
                               )}
 
-                              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                                 <div className="flex items-center gap-2">
                                   {isCompleted && (
                                     <span className="text-green-600 text-sm font-medium flex items-center gap-1">
@@ -685,7 +686,7 @@ const CourseDetail = () => {
                                     disabled={completing}
                                     className={`px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-2 ${
                                       isCompleted
-                                        ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
                                         : 'bg-primary-600 text-white hover:bg-primary-700'
                                     }`}
                                   >
@@ -704,7 +705,7 @@ const CourseDetail = () => {
                                     )}
                                   </button>
                                 ) : (
-                                  <div className="flex items-center gap-2 text-gray-500">
+                                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                                     <Lock className="h-4 w-4" />
                                     <span className="text-sm">Enroll to access lessons</span>
                                   </div>
@@ -721,11 +722,11 @@ const CourseDetail = () => {
             )}
 
             {course.enrollment && totalLessons > 1 && (
-              <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={handlePreviousLesson}
                   disabled={isFirstLesson}
-                  className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="h-5 w-5" />
                   Previous Lesson

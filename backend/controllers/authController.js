@@ -4,7 +4,10 @@ const { pool } = require('../config/database');
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, role = 'student' } = req.body;
+    const { name, email, password } = req.body;
+    // Security: Always force role to 'student' on public registration
+    // Admin accounts must be created via the database or admin panel
+    const role = 'student';
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Please provide name, email, and password' });

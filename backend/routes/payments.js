@@ -46,22 +46,5 @@ router.get('/enrollment/:enrollmentId', auth, getPaymentByEnrollment);
 router.put('/:id/verify', auth, admin, verifyPayment);
 router.get('/all', auth, admin, getAllPayments);
 router.get('/pending', auth, admin, getPendingPayments);
-router.get('/debug', auth, admin, async (req, res) => {
-  try {
-    const [rawPayments] = await pool.query('SELECT * FROM payments');
-    const [enrollments] = await pool.query('SELECT * FROM enrollments');
-    const [courses] = await pool.query('SELECT * FROM courses');
-    const [users] = await pool.query('SELECT * FROM users');
-    res.json({ 
-      paymentsCount: rawPayments.length, 
-      enrollmentsCount: enrollments.length,
-      coursesCount: courses.length,
-      usersCount: users.length,
-      payments: rawPayments 
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 module.exports = router;

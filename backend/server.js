@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config();
 
@@ -25,17 +27,106 @@ const studentGoalsRoutes = require('./routes/studentGoals');
 const learningResourceRoutes = require('./routes/learningResources');
 
 const fs = require('fs');
-const paymentsDir = path.join(__dirname, 'uploads/payments');
-if (!fs.existsSync(paymentsDir)) {
-  fs.mkdirSync(paymentsDir, { recursive: true });
-}
+
+// Auto-create all required upload directories at startup
+const uploadDirs = [
+  'uploads',
+  'uploads/avatars',
+  'uploads/payments',
+  'uploads/handouts',
+  'uploads/payment_settings',
+  'uploads/videos'
+];
+uploadDirs.forEach(dir => {
+  const dirPath = path.join(__dirname, dir);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+});
 
 const app = express();
 
-app.use(cors());
+// Production: trust proxy (Nginx / Hostinger reverse proxy)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+// Security: Helmet middleware for security headers
+const isProduction = process.env.NODE_ENV === 'production';
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: isProduction ? {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      mediaSrc: ["'self'", "blob:", "https:"],
+      connectSrc: ["'self'", process.env.FRONTEND_URL, process.env.ADMIN_URL].filter(Boolean)
+    }
+  } : false
+}));
+
+// CORS Configuration - restrict origins in production
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5000',
+      process.env.FRONTEND_URL,
+      process.env.ADMIN_URL
+    ].filter(Boolean);
+    
+    if (process.env.NODE_ENV === 'production') {
+      // In production, only allow configured origins
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    } else {
+      // In development, allow all origins
+      callback(null, true);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rate limiting for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { message: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Stricter rate limit for login/register
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 login attempts per 15 minutes
+  message: { message: 'Too many login attempts, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Apply rate limiting to auth routes
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/register', loginLimiter);
+app.use('/api/auth', authLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
@@ -58,311 +149,37 @@ app.use('/api/student-goals', studentGoalsRoutes);
 app.use('/api/learning-resources', learningResourceRoutes);
 
 app.get('/api/health', (req, res) => {
-  res.json({ message: 'API is running' });
+  res.json({ message: 'API is running', timestamp: new Date().toISOString() });
 });
 
-app.get('/api/migrate', async (req, res) => {
-  try {
-    const mysql = require('mysql2/promise');
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME
-    });
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        role ENUM('student', 'admin', 'teacher') DEFAULT 'student',
-        avatar VARCHAR(500),
-        phone VARCHAR(50),
-        notifications JSON,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS courses (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        thumbnail VARCHAR(500),
-        price DECIMAL(10,2) DEFAULT 0,
-        category VARCHAR(100),
-        level VARCHAR(50),
-        duration VARCHAR(50),
-        instructor_id INT,
-        status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (instructor_id) REFERENCES users(id) ON DELETE SET NULL
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS lessons (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        course_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        video_url VARCHAR(500),
-        duration VARCHAR(50),
-        order_index INT DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS enrollments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        course_id INT NOT NULL,
-        progress DECIMAL(5,2) DEFAULT 0,
-        status ENUM('active', 'completed', 'expired') DEFAULT 'active',
-        enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        completed_at TIMESTAMP NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-        UNIQUE KEY unique_enrollment (user_id, course_id)
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS lesson_progress (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        lesson_id INT NOT NULL,
-        completed BOOLEAN DEFAULT FALSE,
-        completed_at TIMESTAMP NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
-        UNIQUE KEY unique_progress (user_id, lesson_id)
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS payments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        enrollment_id INT,
-        amount DECIMAL(10,2) NOT NULL,
-        payment_method VARCHAR(50),
-        transaction_id VARCHAR(255),
-        receipt_image VARCHAR(500),
-        status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        verified_at TIMESTAMP NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (enrollment_id) REFERENCES enrollments(id) ON DELETE SET NULL
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS handouts (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        course_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        file_path VARCHAR(500),
-        file_type VARCHAR(50),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS announcements (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        course_id INT,
-        title VARCHAR(255) NOT NULL,
-        content TEXT NOT NULL,
-        author_id INT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-        FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS student_groups (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        description TEXT,
-        created_by INT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS student_group_members (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        group_id INT NOT NULL,
-        user_id INT NOT NULL,
-        joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (group_id) REFERENCES student_groups(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        UNIQUE KEY unique_member (group_id, user_id)
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS class_links (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        course_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        meeting_url VARCHAR(500),
-        scheduled_at TIMESTAMP NULL,
-        duration INT DEFAULT 60,
-        created_by INT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS notifications (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        message TEXT,
-        type VARCHAR(50),
-        is_read BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS student_todos (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        due_date DATE,
-        completed BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS student_events (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        event_date DATE,
-        event_time TIME,
-        color VARCHAR(20),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS learning_paths (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        thumbnail VARCHAR(500),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS learning_path_courses (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        path_id INT NOT NULL,
-        course_id INT NOT NULL,
-        order_index INT DEFAULT 0,
-        FOREIGN KEY (path_id) REFERENCES learning_paths(id) ON DELETE CASCADE,
-        FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS learning_path_enrollments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        path_id INT NOT NULL,
-        progress DECIMAL(5,2) DEFAULT 0,
-        enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (path_id) REFERENCES learning_paths(id) ON DELETE CASCADE,
-        UNIQUE KEY unique_path_enrollment (user_id, path_id)
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS student_goals (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        target_date DATE,
-        progress INT DEFAULT 0,
-        completed BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS learning_resources (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        category VARCHAR(100),
-        resource_type VARCHAR(50),
-        url VARCHAR(500),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS payment_settings (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        bank_name VARCHAR(100),
-        account_number VARCHAR(50),
-        account_name VARCHAR(100),
-        instructions TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `);
-    
-    await connection.end();
-    res.json({ message: 'Migration completed successfully!' });
-  } catch (error) {
-    console.error('Migration error:', error);
-    res.status(500).json({ message: 'Migration failed', error: error.message });
-  }
-});
+// NOTE: /api/migrate endpoint removed for security.
+// Database tables are auto-created by initDatabase() in config/database.js
 
+// Serve static built files
 const frontendDist = path.join(__dirname, '../frontend/dist');
 const adminDist = path.join(__dirname, '../admin/dist');
 
-app.use(express.static(frontendDist));
+// Admin panel static files (must be before frontend to avoid conflicts)
 app.use('/admin', express.static(adminDist));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(frontendDist, 'index.html'));
+// Admin SPA catch-all: any /admin/* route serves admin's index.html
+app.get('/admin/*', (req, res) => {
+  res.sendFile(path.join(adminDist, 'index.html'));
 });
-
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(adminDist, 'index.html'));
+});
+
+// Frontend static files
+app.use(express.static(frontendDist));
+
+// Frontend SPA catch-all: any non-API, non-upload, non-admin route serves frontend's index.html
+app.get('*', (req, res, next) => {
+  // Skip API routes, uploads, and admin routes
+  if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/admin')) {
+    return next();
+  }
+  res.sendFile(path.join(frontendDist, 'index.html'));
 });
 
 app.use((err, req, res, next) => {

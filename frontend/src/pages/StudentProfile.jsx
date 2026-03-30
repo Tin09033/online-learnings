@@ -4,6 +4,7 @@ import { User, Lock, Bell, Camera, Save, BookOpen, Award, TrendingUp, Clock, Che
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getAvatarUrl } from '../utils/apiUrl';
 
 const StudentProfile = () => {
   const { user, refreshUser } = useAuth();
@@ -175,7 +176,7 @@ const StudentProfile = () => {
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center cursor-pointer" onClick={handleAvatarClick}>
                   {user?.avatar ? (
                     <img
-                      src={`http://localhost:5000${user.avatar}`}
+                      src={getAvatarUrl(user.avatar)}
                       alt="Avatar"
                       className="w-full h-full object-cover"
                     />

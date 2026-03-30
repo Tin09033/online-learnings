@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const logger = require('../config/logger');
 const path = require('path');
 const fs = require('fs');
 
@@ -178,7 +179,7 @@ const verifyPayment = async (req, res) => {
 
 const getAllPayments = async (req, res) => {
   try {
-    console.log('getAllPayments called, user:', req.user);
+    logger.debug('getAllPayments called');
     const [payments] = await pool.query(`
       SELECT p.*, c.title as course_title, u.name as user_name, u.email as user_email,
              e.status as enrollment_status
@@ -194,7 +195,7 @@ const getAllPayments = async (req, res) => {
       proof_path: normalizeProofPath(p.proof_path)
     }));
     
-    console.log('Total payments found:', payments.length);
+    logger.debug('Total payments found:', payments.length);
 
     res.json(normalizedPayments);
   } catch (error) {

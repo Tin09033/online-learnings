@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Upload, Trash2, Edit, FileText, Download, X, Save } from 'lucide-react';
 import { handoutAPI, coursesAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getHandoutUrl } from '../utils/apiUrl';
 
 const AdminCourseHandouts = () => {
   const { courseId } = useParams();
@@ -200,7 +201,7 @@ const AdminCourseHandouts = () => {
 
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <a
-                      href={`http://localhost:5000${handout.file_path}`}
+                      href={getHandoutUrl(handout.file_path)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center space-x-2 text-primary-600 hover:text-primary-700"

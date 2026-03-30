@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { authAPI, paymentsAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getQrCodeUrl } from '../utils/apiUrl';
 
 const AdminSettings = () => {
   const { user } = useAuth();
@@ -418,7 +419,7 @@ const AdminSettings = () => {
                       {(qrCodePreview || currentQrCode) && (
                         <div className="relative">
                           <img
-                            src={qrCodePreview || `http://localhost:5000${currentQrCode}`}
+                            src={qrCodePreview || getQrCodeUrl(currentQrCode)}
                             alt="QR Code Preview"
                             className="w-32 h-32 object-contain rounded-lg border border-gray-300 dark:border-gray-600"
                           />

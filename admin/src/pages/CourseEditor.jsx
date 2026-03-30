@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Save, Image as ImageIcon, Plus, Edit, Play, FileText, Eye, EyeOff, AlertTriangle, CheckCircle, Upload, Download } from 'lucide-react';
 import { coursesAPI, lessonsAPI, handoutAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getUploadUrl, getHandoutUrl } from '../utils/apiUrl';
 
 const CourseEditor = () => {
   const { id } = useParams();
@@ -401,7 +402,7 @@ const CourseEditor = () => {
                 {imagePreview ? (
                   <div className="relative inline-block">
                     <img 
-                      src={imagePreview.startsWith('data:') ? imagePreview : `http://localhost:5000${imagePreview}`} 
+                      src={imagePreview.startsWith('data:') ? imagePreview : getUploadUrl(imagePreview)} 
                       alt="Preview" 
                       className="max-h-48 rounded-lg" 
                     />
@@ -563,7 +564,7 @@ const CourseEditor = () => {
                   </div>
                   <div className="flex items-center space-x-1">
                     <a
-                      href={`http://localhost:5000${handout.file_path}`}
+                      href={getHandoutUrl(handout.file_path)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CreditCard, Clock, CheckCircle, XCircle, Search, ChevronLeft, ChevronRight, Eye, Check, X, Download, AlertCircle } from 'lucide-react';
 import { paymentsAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import { getPaymentProofUrl, getApiUrl } from '../utils/apiUrl';
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState([]);
@@ -26,7 +27,7 @@ const AdminPayments = () => {
   const fetchDebug = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/payments/debug', {
+      const response = await fetch(getApiUrl('/api/payments/debug'), {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
