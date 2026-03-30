@@ -21,7 +21,7 @@ const Home = () => {
     const fetchCourses = async () => {
       try {
         const response = await coursesAPI.getAll({ limit: 6 });
-        setCourses(response.data.courses);
+        setCourses(response.data?.courses || []);
       } catch (error) {
         console.error('Error fetching courses:', error);
       }

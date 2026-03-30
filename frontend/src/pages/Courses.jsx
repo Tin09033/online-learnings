@@ -42,7 +42,7 @@ const Courses = () => {
         limit: 12,
         search: debouncedSearch
       });
-      setCourses(response.data.courses);
+      setCourses(response.data?.courses || []);
       setPagination({
         ...pagination,
         totalPages: response.data.pagination.totalPages
