@@ -1,0 +1,14 @@
+{
+  "name": "online-learning-platform",
+  "version": "1.0.0",
+  "description": "Root package for Hostinger auto-deployment",
+  "scripts": {
+    "install:all": "npm install --prefix frontend && npm install --prefix admin && npm install --prefix backend",
+    "build:all": "npm run build --prefix frontend && npm run build --prefix admin",
+    "build": "npm run install:all && npm run build:all",
+    "start": "node backend/server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
