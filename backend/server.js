@@ -44,6 +44,37 @@ uploadDirs.forEach(dir => {
   }
 });
 
+// Sync built static assets to root to bypass Nginx/LiteSpeed static file 404s on Hostinger
+const syncStaticAssets = () => {
+  const copyRecursiveSync = (src, dest) => {
+    if (!fs.existsSync(src)) return;
+    const stats = fs.statSync(src);
+    if (stats.isDirectory()) {
+      if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+      fs.readdirSync(src).forEach(child => {
+        copyRecursiveSync(path.join(src, child), path.join(dest, child));
+      });
+    } else {
+      fs.copyFileSync(src, dest);
+    }
+  };
+
+  try {
+    copyRecursiveSync(path.join(__dirname, '../admin/dist/assets'), path.join(__dirname, '../admin/assets'));
+    if (fs.existsSync(path.join(__dirname, '../admin/dist/vite.svg'))) {
+      fs.copyFileSync(path.join(__dirname, '../admin/dist/vite.svg'), path.join(__dirname, '../admin/vite.svg'));
+    }
+
+    copyRecursiveSync(path.join(__dirname, '../frontend/dist/assets'), path.join(__dirname, '../assets'));
+    if (fs.existsSync(path.join(__dirname, '../frontend/dist/vite.svg'))) {
+      fs.copyFileSync(path.join(__dirname, '../frontend/dist/vite.svg'), path.join(__dirname, '../vite.svg'));
+    }
+  } catch (err) {
+    console.warn('Could not sync static assets:', err.message);
+  }
+};
+syncStaticAssets();
+
 const app = express();
 
 // Production: trust proxy (Nginx / Hostinger reverse proxy)
