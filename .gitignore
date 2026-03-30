@@ -9,3 +9,6 @@ dist/
 uploads/*
 !uploads/.gitkeep
 logs/
+*.zip
+*.zip
+zip

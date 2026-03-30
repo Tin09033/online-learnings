@@ -5,7 +5,8 @@
   "scripts": {
     "install:all": "npm install --prefix frontend && npm install --prefix admin && npm install --prefix backend",
     "build:all": "npm run build --prefix frontend && npm run build --prefix admin",
-    "build": "npm run install:all && npm run build:all",
+    "consolidate": "node scripts/consolidate-dist.js",
+    "build": "npm run install:all && npm run build:all && npm run consolidate",
     "start": "node backend/server.js"
   },
   "engines": {
