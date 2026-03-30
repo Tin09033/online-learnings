@@ -61,6 +61,20 @@ app.get('/api/health', (req, res) => {
   res.json({ message: 'API is running' });
 });
 
+const frontendDist = path.join(__dirname, '../frontend/dist');
+const adminDist = path.join(__dirname, '../admin/dist');
+
+app.use(express.static(frontendDist));
+app.use('/admin', express.static(adminDist));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(frontendDist, 'index.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(adminDist, 'index.html'));
+});
+
 app.use((err, req, res, next) => {
   console.error('Server Error:', err.stack);
   if (err.message === 'Only image files are allowed!') {

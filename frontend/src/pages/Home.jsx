@@ -5,8 +5,10 @@ import { useState, useEffect } from 'react';
 import { coursesAPI } from '../services/api';
 import CourseCard from '../components/CourseCard';
 import ChatBot from '../components/ChatBot';
+import { useTranslation } from 'react-i18next';
 
 const Home = () => {
+  const { t } = useTranslation();
   const [courses, setCourses] = useState([]);
   const [stats, setStats] = useState({
     students: 0,
@@ -39,23 +41,23 @@ const Home = () => {
   const features = [
     {
       icon: <Clock className="h-8 w-8" />,
-      title: 'Learn at Your Pace',
-      description: 'Access courses anytime, anywhere. No deadlines, no pressure.'
+      title: t('features.flexibleLearning'),
+      description: t('features.flexibleLearningDesc')
     },
     {
       icon: <GraduationCap className="h-8 w-8" />,
-      title: 'Get Certified',
-      description: 'Earn certificates upon completion to showcase your skills.'
+      title: t('features.certificates'),
+      description: t('features.certificatesDesc')
     },
     {
       icon: <Brain className="h-8 w-8" />,
-      title: 'Expert Instructors',
-      description: 'Learn from industry professionals with real-world experience.'
+      title: t('features.expertInstructors'),
+      description: t('features.expertInstructorsDesc')
     },
     {
       icon: <Globe className="h-8 w-8" />,
-      title: 'Global Community',
-      description: 'Connect with learners from around the world.'
+      title: t('features.community'),
+      description: t('features.communityDesc')
     }
   ];
 
@@ -70,25 +72,23 @@ const Home = () => {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-                The Best Online{' '}
-                <span className="text-gradient">Learning Platform</span>
+                {t('hero.title')}
               </h1>
               <p className="text-xl text-gray-600 mb-8">
-                Unlock your potential with thousands of courses from expert instructors. 
-                Learn new skills, advance your career, and achieve your goals.
+                {t('hero.subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/courses"
                   className="bg-primary-600 text-white px-8 py-4 rounded-xl hover:bg-primary-700 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl text-center"
                 >
-                  Browse Courses
+                  {t('hero.getStarted')}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-white text-primary-600 px-8 py-4 rounded-xl hover:bg-primary-50 transition-all duration-300 font-semibold text-lg shadow-lg border-2 border-primary-600 text-center"
                 >
-                  Join Now
+                  {t('navbar.register')}
                 </Link>
               </div>
             </motion.div>
@@ -121,10 +121,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: <Users className="h-10 w-10" />, value: stats.students, label: 'Happy Students' },
-              { icon: <BookOpen className="h-10 w-10" />, value: stats.courses, label: 'Courses Available' },
-              { icon: <Award className="h-10 w-10" />, value: stats.instructors, label: 'Expert Instructors' },
-              { icon: <GraduationCap className="h-10 w-10" />, value: stats.certificates, label: 'Certificates Issued' }
+              { icon: <Users className="h-10 w-10" />, value: stats.students, label: t('courses.students') },
+              { icon: <BookOpen className="h-10 w-10" />, value: stats.courses, label: t('navbar.courses') },
+              { icon: <Award className="h-10 w-10" />, value: stats.instructors, label: t('features.expertInstructors') },
+              { icon: <GraduationCap className="h-10 w-10" />, value: stats.certificates, label: t('features.certificates') }
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -157,10 +157,10 @@ const Home = () => {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Us
+              {t('features.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover what makes MASTERTALK the preferred choice for millions of learners worldwide.
+              {t('features.subtitle')}
             </p>
           </motion.div>
 
@@ -199,10 +199,10 @@ const Home = () => {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Featured Courses
+              {t('courses.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explore our most popular courses and start learning today.
+              {t('courses.subtitle')}
             </p>
           </motion.div>
 
@@ -217,7 +217,7 @@ const Home = () => {
               to="/courses"
               className="inline-block bg-primary-600 text-white px-8 py-4 rounded-xl hover:bg-primary-700 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl"
             >
-              View All Courses
+              {t('courses.viewAll')}
             </Link>
           </div>
         </div>
@@ -232,16 +232,16 @@ const Home = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to Start Learning?
+              {t('cta.title')}
             </h2>
             <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of learners who are already transforming their careers with MASTERTALK.
+              {t('cta.subtitle')}
             </p>
             <Link
               to="/register"
               className="inline-block bg-white text-primary-600 px-8 py-4 rounded-xl hover:bg-primary-50 transition-all duration-300 font-semibold text-lg shadow-lg"
             >
-              Get Started for Free
+              {t('cta.button')}
             </Link>
           </motion.div>
         </div>

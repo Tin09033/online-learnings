@@ -66,8 +66,8 @@ const AdminDashboard = () => {
           transition={{ duration: 0.6 }}
           className="mb-12"
         >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('admin.dashboard') || 'Admin Dashboard'}</h1>
-          <p className="text-gray-600 dark:text-gray-400">{t('admin.managePlatform') || 'Manage your learning platform'}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('admin.dashboard')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">{t('admin.managePlatform')}</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -103,9 +103,9 @@ const AdminDashboard = () => {
             className="bg-white rounded-2xl shadow-lg p-6"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('admin.recentCourses')}</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recent Courses</h2>
               <Link to="/admin/courses" className="text-primary-600 hover:text-primary-700 font-medium text-sm">
-                {t('admin.viewAll')}
+                View All
               </Link>
             </div>
             <div className="space-y-4">
@@ -132,9 +132,9 @@ const AdminDashboard = () => {
             className="bg-white rounded-2xl shadow-lg p-6"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('admin.recentEnrollments')}</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recent Enrollments</h2>
               <Link to="/admin/enrollments" className="text-primary-600 hover:text-primary-700 font-medium text-sm">
-                {t('admin.viewAll')}
+                View All
               </Link>
             </div>
             <div className="space-y-4">

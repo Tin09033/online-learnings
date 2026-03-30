@@ -4,8 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { Menu, X, BookOpen, User, LogOut, LayoutDashboard, Bell, AlertTriangle, AlertCircle, Info, X as XIcon, CreditCard, Video, CheckCircle } from 'lucide-react';
 import { notificationsAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -107,7 +110,7 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/courses" className="text-gray-700 hover:text-primary-600 transition-colors font-medium">
-              Courses
+              {t('navbar.courses')}
             </Link>
             
             {user ? (
@@ -136,7 +139,7 @@ const Navbar = () => {
                     {showNotifications && (
                       <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
                         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-                          <h3 className="font-semibold text-gray-900">Notifications</h3>
+                          <h3 className="font-semibold text-gray-900">{t('notifications.title')}</h3>
                           <button
                             onClick={() => setShowNotifications(false)}
                             className="p-1 hover:bg-gray-200 rounded-full transition-colors"
@@ -152,7 +155,7 @@ const Navbar = () => {
                           ) : announcements.length === 0 ? (
                             <div className="p-8 text-center">
                               <Bell className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                              <p className="text-gray-500 text-sm">No notifications</p>
+                              <p className="text-gray-500 text-sm">{t('notifications.noNotifications')}</p>
                             </div>
                           ) : (
                             announcements.map((notification) => (
@@ -168,7 +171,7 @@ const Navbar = () => {
                                     <div className="flex items-center gap-2 mb-1">
                                       <span className="text-xs font-medium text-gray-500">
                                         {notification.type === 'payment_confirmed' ? 'Payment' :
-                                         notification.type === 'class_link' ? 'Class Link' :
+                                         notification.type === 'class_link' ? t('student.classLink') :
                                          notification.type === 'enrollment_pending' ? 'Enrollment' :
                                          'Teacher'}
                                       </span>
@@ -192,7 +195,7 @@ const Navbar = () => {
                                         className="inline-flex items-center gap-1 mt-2 text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full hover:bg-purple-100 transition-colors"
                                       >
                                         <Video className="h-3 w-3" />
-                                        Join Class
+                                        {t('student.joinClass')}
                                       </a>
                                     )}
                                   </div>
@@ -206,7 +209,7 @@ const Navbar = () => {
                           onClick={() => setShowNotifications(false)}
                           className="block p-3 text-center text-sm font-medium text-primary-600 hover:bg-primary-50 transition-colors border-t border-gray-200"
                         >
-                          View All Notifications
+                          {t('common.view')} {t('notifications.title')}
                         </Link>
                       </div>
                     )}
@@ -215,14 +218,14 @@ const Navbar = () => {
 
                 <Link to="/student" className="flex items-center space-x-1 text-gray-700 hover:text-primary-600">
                   <User className="h-5 w-5" />
-                  <span>MyPortal</span>
+                  <span>{t('navbar.myPortal')}</span>
                 </Link>
                 <button
                   onClick={openLogoutModal}
                   className="flex items-center space-x-1 text-gray-700 hover:text-red-600 transition-colors"
                 >
                   <LogOut className="h-5 w-5" />
-                  <span>Logout</span>
+                  <span>{t('navbar.logout')}</span>
                 </button>
               </div>
             ) : (
@@ -231,16 +234,18 @@ const Navbar = () => {
                   to="/login"
                   className="text-gray-700 hover:text-primary-600 transition-colors font-medium"
                 >
-                  Login
+                  {t('navbar.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium"
                 >
-                  Join Now
+                  {t('navbar.register')}
                 </Link>
               </div>
             )}
+            
+            <LanguageSwitcher />
           </div>
 
           <button
@@ -260,7 +265,7 @@ const Navbar = () => {
               className="block text-gray-700 hover:text-primary-600 font-medium"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Courses
+              {t('navbar.courses')}
             </Link>
             
             {user ? (
@@ -270,7 +275,7 @@ const Navbar = () => {
                   className="block text-gray-700 hover:text-primary-600 font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  My Dashboard
+                  {t('navbar.myPortal')}
                 </Link>
                 {user.role === 'admin' && (
                   <Link
@@ -278,14 +283,14 @@ const Navbar = () => {
                     className="block text-primary-600 hover:text-primary-700 font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Admin Panel
+                    Admin
                   </Link>
                 )}
                 <button
                   onClick={openLogoutModal}
                   className="block text-red-600 hover:text-red-700 font-medium w-full text-left"
                 >
-                  Logout
+                  {t('navbar.logout')}
                 </button>
               </>
             ) : (
@@ -295,14 +300,14 @@ const Navbar = () => {
                   className="block text-gray-700 hover:text-primary-600 font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Login
+                  {t('navbar.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="block bg-primary-600 text-white px-4 py-2 rounded-lg text-center font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Join Now
+                  {t('navbar.register')}
                 </Link>
               </>
             )}
@@ -321,20 +326,20 @@ const Navbar = () => {
               <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
                 <LogOut className="h-8 w-8 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Logout</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('navbar.logout')}</h3>
               <p className="text-gray-600 mb-8">Are you sure you want to logout?</p>
               <div className="flex gap-4">
                 <button
                   onClick={() => setShowLogoutModal(false)}
                   className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleLogout}
                   className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
                 >
-                  Yes, Logout
+                  Yes, {t('navbar.logout')}
                 </button>
               </div>
             </div>
