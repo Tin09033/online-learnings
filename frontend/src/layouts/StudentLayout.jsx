@@ -132,8 +132,8 @@ const StudentLayout = () => {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-300 lg:translate-x-0 shadow-depth-xl ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-4 border-b border-gray-800 bg-gray-900/50">
           <Link to="/student" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-primary-gradient rounded-xl flex items-center justify-center shadow-dual-md group-hover:shadow-dual-lg transition-all duration-300">
-              <GraduationCap className="h-6 w-6" />
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-dual-md group-hover:shadow-dual-lg transition-all duration-300">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className="font-bold text-lg">MASTERTALK</h1>

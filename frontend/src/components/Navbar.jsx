@@ -107,12 +107,16 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2 group">
             <div className="p-2 bg-primary-50 dark:bg-primary-900/30 rounded-xl shadow-dual-sm group-hover:shadow-dual-md transition-all duration-200">
-              <BookOpen className="h-6 w-6 text-primary-600" />
+              <img src="/logo.png" alt="MASTERTALK Logo" className="h-6 w-6 object-contain" />
             </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white">MASTERTALK</span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
+            <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium relative group">
+              <span>{t('navbar.home', 'Home')}</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 group-hover:w-full transition-all duration-300"></span>
+            </Link>
             <Link to="/courses" className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium relative group">
               <span>{t('navbar.courses')}</span>
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 group-hover:w-full transition-all duration-300"></span>
@@ -280,6 +284,13 @@ const Navbar = () => {
               {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
             </button>
+            <Link
+              to="/"
+              className="block text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 font-medium px-3 py-2 rounded-lg transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {t('navbar.home', 'Home')}
+            </Link>
             <Link
               to="/courses"
               className="block text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 font-medium px-3 py-2 rounded-lg transition-colors"

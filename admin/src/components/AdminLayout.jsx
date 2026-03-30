@@ -111,8 +111,8 @@ const AdminLayout = () => {
         <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="p-6 border-b border-gray-800">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-                <LayoutDashboard className="h-6 w-6" />
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden">
+                <img src="/logo.png" className="w-full h-full object-cover" alt="Logo" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">Admin Panel</h1>
