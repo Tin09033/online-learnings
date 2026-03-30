@@ -169,7 +169,7 @@ CREATE TABLE `enrollments` (
   `user_id` int(11) NOT NULL,
   `course_id` int(11) NOT NULL,
   `progress` int(11) DEFAULT 0,
-  `status` enum('active','completed') DEFAULT 'active',
+  `status` enum('pending','active','completed') DEFAULT 'pending',
   `enrolled_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
