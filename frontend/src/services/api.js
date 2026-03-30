@@ -2,8 +2,12 @@ import axios from 'axios';
 
 const getBaseURL = () => {
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    // Production: append /api to the backend URL
+    const baseUrl = import.meta.env.VITE_API_URL;
+    // Remove trailing slash if present, then add /api
+    return baseUrl.replace(/\/$/, '') + '/api';
   }
+  // Development: use relative path (Vite proxy handles it)
   return '/api';
 };
 

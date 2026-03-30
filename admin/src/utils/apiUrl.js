@@ -4,16 +4,28 @@
  */
 
 /**
+ * Get the base server URL (without /api) for static assets
+ * @returns {string} Base server URL
+ */
+const getServerBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/$/, '');
+  }
+  return '';
+};
+
+/**
  * Get the base API URL based on environment
- * @returns {string} Base API URL
+ * @returns {string} Base API URL (includes /api path)
  */
 export const getApiBaseUrl = () => {
-  // If VITE_API_URL is set (production), use it
+  // If VITE_API_URL is set (production), use it and append /api
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    const baseUrl = import.meta.env.VITE_API_URL;
+    return baseUrl.replace(/\/$/, '') + '/api';
   }
   // Development: use relative path (Vite proxy handles it)
-  return '';
+  return '/api';
 };
 
 /**
@@ -47,9 +59,9 @@ export const getUploadUrl = (path) => {
     return path;
   }
   
-  const base = getApiBaseUrl();
+  const base = getServerBaseUrl();
   
-  // In production, prepend the API base URL
+  // In production, prepend the server base URL (without /api)
   if (base) {
     // Ensure path starts with /
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
