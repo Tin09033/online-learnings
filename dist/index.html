@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MASTERTALK - Online Learning Platform</title>
+    <script>
+      (function() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-T5JFIqvq.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-C_AsfdHP.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-DBVQo-rQ.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BGHSkh7b.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
