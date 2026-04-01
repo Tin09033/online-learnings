@@ -1,16 +1,11 @@
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { BookOpen, Users, Award, Clock, GraduationCap, Brain, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { coursesAPI } from '../services/api';
 import CourseCard from '../components/CourseCard';
 import ChatBot from '../components/ChatBot';
 import { useTranslation } from 'react-i18next';
-
-const slideshowImages = [
-  '/image/5.png',
-  '/image/6.png'
-];
 
 const Home = () => {
   const { t } = useTranslation();
@@ -21,7 +16,6 @@ const Home = () => {
     instructors: 0,
     certificates: 0
   });
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -42,13 +36,6 @@ const Home = () => {
         certificates: 12000
       });
     }, 500);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % slideshowImages.length);
-    }, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   const features = [
@@ -76,28 +63,11 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section with slideshow background */}
-      <section className="relative overflow-hidden min-h-[600px] lg:min-h-[700px]">
-        {/* Background Slideshow */}
-        <div className="absolute inset-0">
-          <AnimatePresence>
-            <motion.div
-              key={currentImageIndex}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 1.5 }}
-              className="absolute inset-0"
-            >
-              <img
-                src={slideshowImages[currentImageIndex]}
-                alt="Slideshow"
-                className="w-full h-full object-cover object-center"
-                style={{ objectFit: 'cover', filter: 'blur(2px)' }}
-              />
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      {/* Hero Section with depth layering */}
+      <section className="relative overflow-hidden">
+        {/* Background with depth layers */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-surface-base to-primary-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 transition-colors duration-200" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMzYjgyZjYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50 dark:opacity-20" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -106,11 +76,11 @@ const Home = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
-                Master Your Skills with Expert-Led Courses
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight mb-6">
+                {t('hero.title')}
               </h1>
-              <p className="text-xl text-white/90 mb-8" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
-                Join thousands of learners and start your journey to success. Access premium courses taught by industry experts.
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+                {t('hero.subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -121,7 +91,7 @@ const Home = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-xl hover:bg-white/30 transition-all duration-300 font-semibold text-lg shadow-depth-md hover:shadow-depth-lg border border-white/30 text-center"
+                  className="bg-surface-raised dark:bg-gray-800 text-primary-600 dark:text-primary-300 px-8 py-4 rounded-xl hover:bg-primary-50 dark:hover:bg-gray-700 transition-all duration-300 font-semibold text-lg shadow-depth-md hover:shadow-depth-lg border border-primary-200 dark:border-gray-700 text-center"
                 >
                   {t('navbar.register')}
                 </Link>
@@ -136,7 +106,7 @@ const Home = () => {
             >
               <div className="card-raised p-6 transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <img
-                  src="/image/image.png"
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80"
                   alt="Students learning"
                   className="w-full h-80 object-cover rounded-2xl"
                 />
