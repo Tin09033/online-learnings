@@ -1,0 +1,30 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Force HTTPS (uncomment if needed)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Do not rewrite requests for actual files or directories
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Redirect all other requests to index.html for SPA routing
+RewriteRule ^ index.html [L]
+
+# Proper MIME types for JavaScript modules
+<IfModule mod_mime.c>
+    AddType application/javascript js mjs
+    AddType text/css css
+    AddType image/svg+xml svg svgz
+</IfModule>
+
+# Disable caching for index.html to ensure updates are served
+<IfModule mod_headers.c>
+    <FilesMatch "index\.html$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
