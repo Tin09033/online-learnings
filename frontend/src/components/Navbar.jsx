@@ -124,13 +124,6 @@ const Navbar = () => {
             
             {user ? (
               <div className="flex items-center space-x-4">
-                {user.role === 'admin' && (
-                  <Link to="/admin" className="flex items-center space-x-1 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all duration-200 shadow-dual-sm hover:shadow-dual-md">
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span className="font-medium">Admin</span>
-                  </Link>
-                )}
-                
                 {user.role === 'student' && (
                   <div className="relative" ref={notificationRef}>
                     <button
@@ -308,15 +301,6 @@ const Navbar = () => {
                 >
                   {t('navbar.myPortal')}
                 </Link>
-                {user.role === 'admin' && (
-                  <Link
-                    to="/admin"
-                    className="block text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 font-medium px-3 py-2 rounded-lg transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Admin
-                  </Link>
-                )}
                 <button
                   onClick={openLogoutModal}
                   className="block text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium w-full text-left px-3 py-2 rounded-lg transition-colors"
