@@ -8,8 +8,8 @@ import ChatBot from '../components/ChatBot';
 import { useTranslation } from 'react-i18next';
 
 const slideshowImages = [
-  '/Image/5.png',
-  '/Image/6.png'
+  '/image/5.png',
+  '/image/6.png'
 ];
 
 const Home = () => {
@@ -136,7 +136,7 @@ const Home = () => {
             >
               <div className="card-raised p-6 transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <img
-                  src="/Image/image.png"
+                  src="/image/image.png"
                   alt="Students learning"
                   className="w-full h-80 object-cover rounded-2xl"
                 />
