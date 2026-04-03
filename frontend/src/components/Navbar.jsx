@@ -218,7 +218,7 @@ const Navbar = () => {
                   </div>
                 )}
 
-                <Link to="/student" className="flex items-center space-x-1 px-3 py-1.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-700 transition-all duration-200">
+                <Link to={user.role === 'admin' ? "/admin" : "/student"} className="flex items-center space-x-1 px-3 py-1.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-700 transition-all duration-200">
                   <User className="h-4 w-4" />
                   <span className="font-medium">{t('navbar.myPortal')}</span>
                 </Link>
@@ -295,7 +295,7 @@ const Navbar = () => {
             {user ? (
               <>
                 <Link
-                  to="/student"
+                  to={user.role === 'admin' ? "/admin" : "/student"}
                   className="block text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 font-medium px-3 py-2 rounded-lg transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
