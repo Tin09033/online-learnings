@@ -77,7 +77,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center space-x-3 text-gray-400">
                 <Mail className="h-5 w-5 text-primary-400" />
-                <span>contact@mastertalk.com</span>
+                <span>lloradojustin334@gmail.com</span>
               </li>
               <li className="flex items-center space-x-3 text-gray-400">
                 <Phone className="h-5 w-5 text-primary-400" />
@@ -85,7 +85,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center space-x-3 text-gray-400">
                 <MapPin className="h-5 w-5 text-primary-400" />
-                <span>123 Education St, Learning City</span>
+                <span>04186 Narciso Street Surigao City</span>
               </li>
             </ul>
           </div>

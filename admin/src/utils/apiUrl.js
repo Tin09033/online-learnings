@@ -59,18 +59,25 @@ export const getUploadUrl = (path) => {
     return path;
   }
   
+  // Ensure path starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  
   const base = getServerBaseUrl();
   
   // In production, prepend the server base URL (without /api)
   if (base) {
-    // Ensure path starts with /
-    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     return `${base}${normalizedPath}`;
   }
   
-  // In development, the Vite proxy handles /uploads
+  // In development without base URL, check if running under /admin subdirectory
+  // If so, use window.location.origin to create absolute URL
+  const isAdminContext = window.location.pathname.startsWith('/admin');
+  if (isAdminContext) {
+    return `${window.location.origin}${normalizedPath}`;
+  }
+  
   // Return path as-is (relative)
-  return path;
+  return normalizedPath;
 };
 
 /**
