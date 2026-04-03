@@ -12,3 +12,4 @@ logs/
 *.zip
 *.zip
 zip
+.agents
