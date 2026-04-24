@@ -274,13 +274,14 @@ const AdminLayout = () => {
                   <Settings className="h-5 w-5" />
                 </Link>
 
-                <Link
-                  to="http://localhost:3000"
+                <a
+                  href="https://darkslategrey-butterfly-132527.hostingersite.com"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="hidden md:inline-flex text-sm text-primary-600 hover:text-primary-700 font-medium"
                 >
                   View Website
-                </Link>
+                </a>
               </div>
             </div>
           </header>

@@ -108,8 +108,9 @@ const Login = () => {
 
           <div className="mt-6 text-center">
             <a
-              href="http://localhost:3000/login"
+              href="https://darkslategrey-butterfly-132527.hostingersite.com/login"
               target="_blank"
+              rel="noopener noreferrer"
               className="text-sm text-primary-600 hover:text-primary-700"
             >
               ← Back to Student Login

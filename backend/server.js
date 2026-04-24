@@ -128,10 +128,13 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
+// Respond to ALL preflight OPTIONS requests immediately before any other middleware.
+// Without this, Hostinger's CDN/LiteSpeed intercepts OPTIONS and returns 503.
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
