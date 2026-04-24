@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getMyTodos = async (req, res) => {
@@ -10,7 +11,7 @@ const getMyTodos = async (req, res) => {
 
     res.json(todos);
   } catch (error) {
-    console.error('Get todos error:', error);
+    logger.error('Get todos error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -38,7 +39,7 @@ const createTodo = async (req, res) => {
       created_at: new Date()
     });
   } catch (error) {
-    console.error('Create todo error:', error);
+    logger.error('Create todo error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -64,7 +65,7 @@ const updateTodo = async (req, res) => {
 
     res.json({ message: 'Todo updated successfully' });
   } catch (error) {
-    console.error('Update todo error:', error);
+    logger.error('Update todo error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -80,7 +81,7 @@ const deleteTodo = async (req, res) => {
 
     res.json({ message: 'Todo deleted successfully' });
   } catch (error) {
-    console.error('Delete todo error:', error);
+    logger.error('Delete todo error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -105,7 +106,7 @@ const toggleTodo = async (req, res) => {
 
     res.json({ message: 'Todo toggled successfully', completed: !todo[0].completed });
   } catch (error) {
-    console.error('Toggle todo error:', error);
+    logger.error('Toggle todo error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -117,3 +118,4 @@ module.exports = {
   deleteTodo,
   toggleTodo
 };
+

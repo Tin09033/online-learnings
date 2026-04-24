@@ -29,6 +29,7 @@ const StudentLayout = () => {
   const notificationRef = useRef(null);
 
   const menuItems = [
+    { path: '/student', icon: Home, label: 'Overview' },
     { path: '/student/courses', icon: BookOpen, label: t('student.myCourses') },
     { path: '/student/announcements', icon: Megaphone, label: t('announcements.title') },
     { path: '/student/payments', icon: CreditCard, label: t('payments.title') },
@@ -107,7 +108,7 @@ const StudentLayout = () => {
 
   const getBreadcrumbs = () => {
     const paths = location.pathname.split('/').filter(Boolean);
-    const breadcrumbs = [{ label: 'My Courses', path: '/student/courses' }];
+    const breadcrumbs = [{ label: 'Overview', path: '/student' }];
     let currentPath = '/student';
     
     paths.forEach((segment, index) => {

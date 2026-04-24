@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const createClassLink = async (req, res) => {
@@ -30,7 +31,7 @@ const createClassLink = async (req, res) => {
       classLink: { id: result.insertId, course_id, class_link, scheduled_at }
     });
   } catch (error) {
-    console.error('Create class link error:', error);
+    logger.error('Create class link error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -50,7 +51,7 @@ const getClassLinks = async (req, res) => {
 
     res.json(links);
   } catch (error) {
-    console.error('Get class links error:', error);
+    logger.error('Get class links error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -67,7 +68,7 @@ const getStudentClassLinks = async (req, res) => {
 
     res.json(links);
   } catch (error) {
-    console.error('Get student class links error:', error);
+    logger.error('Get student class links error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -93,7 +94,7 @@ const getMyClassLink = async (req, res) => {
 
     res.json(link[0]);
   } catch (error) {
-    console.error('Get my class link error:', error);
+    logger.error('Get my class link error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -110,7 +111,7 @@ const deleteClassLink = async (req, res) => {
     await pool.query('DELETE FROM course_class_links WHERE id = ?', [id]);
     res.json({ message: 'Class link deleted successfully' });
   } catch (error) {
-    console.error('Delete class link error:', error);
+    logger.error('Delete class link error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -122,3 +123,4 @@ module.exports = {
   getMyClassLink,
   deleteClassLink
 };
+

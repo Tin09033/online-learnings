@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const enroll = async (req, res) => {
@@ -37,7 +38,7 @@ const enroll = async (req, res) => {
       enrollment: { id: result.insertId, user_id: req.user.id, course_id, status: 'pending' }
     });
   } catch (error) {
-    console.error('Enrollment error:', error);
+    logger.error('Enrollment error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -62,7 +63,7 @@ const getMyEnrollments = async (req, res) => {
 
     res.json(enrollments);
   } catch (error) {
-    console.error('Get enrollments error:', error);
+    logger.error('Get enrollments error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -90,7 +91,7 @@ const updateProgress = async (req, res) => {
 
     res.json({ message: 'Progress updated successfully' });
   } catch (error) {
-    console.error('Update progress error:', error);
+    logger.error('Update progress error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -110,7 +111,7 @@ const getAllEnrollments = async (req, res) => {
 
     res.json(enrollments);
   } catch (error) {
-    console.error('Get all enrollments error:', error);
+    logger.error('Get all enrollments error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -121,3 +122,4 @@ module.exports = {
   updateProgress,
   getAllEnrollments
 };
+

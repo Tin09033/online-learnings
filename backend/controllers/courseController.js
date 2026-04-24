@@ -1,22 +1,12 @@
 const { pool } = require('../config/database');
-const jwt = require('jsonwebtoken');const getAllCourses = async (req, res) => {
+const logger = require('../utils/logger');
+
+const getAllCourses = async (req, res) => {
   try {
     const { search, page = 1, limit = 12 } = req.query;
     const offset = (page - 1) * limit;
 
-    let isAdmin = false;
-    const authHeader = req.header('Authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.replace('Bearer ', '');
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded && decoded.role === 'admin') {
-          isAdmin = true;
-        }
-      } catch (error) {
-        // Ignore token errors for public route
-      }
-    }
+    let isAdmin = req.user && req.user.role === 'admin';
 
     let query = `
       SELECT c.*, u.name as instructor_name, 
@@ -73,7 +63,7 @@ const jwt = require('jsonwebtoken');const getAllCourses = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get courses error:', error);
+    logger.error('Course operation error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -154,7 +144,7 @@ const getCourse = async (req, res) => {
       lastIncompleteLesson
     });
   } catch (error) {
-    console.error('Get course error:', error);
+    logger.error('Get course error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -180,7 +170,7 @@ const createCourse = async (req, res) => {
       course: { id: result.insertId, title, description, amount: courseAmount, image, status: status || 'draft' }
     });
   } catch (error) {
-    console.error('Create course error:', error);
+    logger.error('Create course error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -205,7 +195,7 @@ const updateCourse = async (req, res) => {
 
     res.json({ message: 'Course updated successfully' });
   } catch (error) {
-    console.error('Update course error:', error);
+    logger.error('Update course error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -223,7 +213,7 @@ const deleteCourse = async (req, res) => {
 
     res.json({ message: 'Course deleted successfully' });
   } catch (error) {
-    console.error('Delete course error:', error);
+    logger.error('Delete course error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -246,7 +236,7 @@ const updateCourseStatus = async (req, res) => {
 
     res.json({ message: 'Course status updated successfully' });
   } catch (error) {
-    console.error('Update course status error:', error);
+    logger.error('Update course status error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

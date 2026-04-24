@@ -21,21 +21,9 @@ const AdminPayments = () => {
 
   useEffect(() => {
     fetchPayments();
-    fetchDebug();
   }, []);
 
-  const fetchDebug = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(getApiUrl('/api/payments/debug'), {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      console.log('DEBUG - Raw data from DB:', data);
-    } catch (error) {
-      console.error('Debug error:', error);
-    }
-  };
+
 
   const fetchPayments = async () => {
     try {
@@ -413,7 +401,7 @@ const AdminPayments = () => {
                   {selectedPayment.proof_path ? (
                     <div className="relative">
                       <img
-                        src={selectedPayment.proof_path.startsWith('http') ? selectedPayment.proof_path : selectedPayment.proof_path.startsWith('/uploads') ? selectedPayment.proof_path : `/uploads${selectedPayment.proof_path}`}
+                        src={getPaymentProofUrl(selectedPayment.proof_path)}
                         alt="Payment Proof"
                         className="max-w-full h-auto rounded-lg"
                         onError={(e) => {
@@ -424,6 +412,14 @@ const AdminPayments = () => {
                       <div className="hidden text-center py-12 text-gray-500 dark:text-gray-400">
                         <AlertCircle className="h-12 w-12 mx-auto mb-3" />
                         <p>Failed to load image</p>
+                        <a
+                          href={getPaymentProofUrl(selectedPayment.proof_path)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-block text-sm text-blue-600 underline"
+                        >
+                          Open image in new tab
+                        </a>
                       </div>
                     </div>
                   ) : (

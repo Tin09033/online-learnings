@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getAllPaths = async (req, res) => {
@@ -13,7 +14,7 @@ const getAllPaths = async (req, res) => {
 
     res.json(paths);
   } catch (error) {
-    console.error('Get learning paths error:', error);
+    logger.error('Get learning paths error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -38,7 +39,7 @@ const getMyPaths = async (req, res) => {
 
     res.json(paths);
   } catch (error) {
-    console.error('Get my learning paths error:', error);
+    logger.error('Get my learning paths error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -79,7 +80,7 @@ const getPathDetails = async (req, res) => {
       courses
     });
   } catch (error) {
-    console.error('Get learning path details error:', error);
+    logger.error('Get learning path details error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -109,7 +110,7 @@ const enrollInPath = async (req, res) => {
 
     res.status(201).json({ message: 'Enrolled in learning path successfully' });
   } catch (error) {
-    console.error('Enroll in learning path error:', error);
+    logger.error('Enroll in learning path error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -125,7 +126,7 @@ const unenrollFromPath = async (req, res) => {
 
     res.json({ message: 'Unenrolled from learning path successfully' });
   } catch (error) {
-    console.error('Unenroll from learning path error:', error);
+    logger.error('Unenroll from learning path error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -137,3 +138,4 @@ module.exports = {
   enrollInPath,
   unenrollFromPath
 };
+

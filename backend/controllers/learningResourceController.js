@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getMyResources = async (req, res) => {
@@ -14,7 +15,7 @@ const getMyResources = async (req, res) => {
 
     res.json(resources);
   } catch (error) {
-    console.error('Get resources error:', error);
+    logger.error('Get resources error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -36,7 +37,7 @@ const getResourcesByCategory = async (req, res) => {
 
     res.json(resources);
   } catch (error) {
-    console.error('Get resources by category error:', error);
+    logger.error('Get resources by category error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -58,7 +59,7 @@ const getResourceById = async (req, res) => {
 
     res.json(resource[0]);
   } catch (error) {
-    console.error('Get resource error:', error);
+    logger.error('Get resource error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -73,7 +74,7 @@ const getCategories = async (req, res) => {
 
     res.json(categories.map(c => c.category));
   } catch (error) {
-    console.error('Get categories error:', error);
+    logger.error('Get categories error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -84,3 +85,4 @@ module.exports = {
   getResourceById,
   getCategories
 };
+

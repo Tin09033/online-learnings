@@ -1,12 +1,38 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
+
+const generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' }
+  );
+  const refreshToken = jwt.sign(
+    { id: user.id },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: '7d' }
+  );
+  return { accessToken, refreshToken };
+};
+
+const setTokenCookies = (res, accessToken, refreshToken) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'strict' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days (matches refresh token)
+  };
+
+  res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
+  res.cookie('refreshToken', refreshToken, cookieOptions);
+};
 
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    // Security: Always force role to 'student' on public registration
-    // Admin accounts must be created via the database or admin panel
     const role = 'student';
 
     if (!name || !email || !password) {
@@ -26,19 +52,23 @@ const register = async (req, res) => {
       [name, email, hashedPassword, role]
     );
 
-    const token = jwt.sign(
-      { id: result.insertId, email, role },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+    const user = { id: result.insertId, name, email, role };
+    const { accessToken, refreshToken } = generateTokens(user);
+
+    // Store refresh token in DB
+    await pool.query(
+      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
+      [user.id, refreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)]
     );
+
+    setTokenCookies(res, accessToken, refreshToken);
 
     res.status(201).json({
       message: 'User registered successfully',
-      token,
-      user: { id: result.insertId, name, email, role }
+      user: { id: user.id, name: user.name, email: user.email, role: user.role }
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    logger.error('Registration error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -62,19 +92,70 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+    const { accessToken, refreshToken } = generateTokens(user);
+
+    // Store refresh token in DB
+    await pool.query(
+      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
+      [user.id, refreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)]
     );
+
+    setTokenCookies(res, accessToken, refreshToken);
 
     res.json({
       message: 'Login successful',
-      token,
       user: { id: user.id, name: user.name, email: user.email, role: user.role }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const refreshToken = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    if (!token) return res.status(401).json({ message: 'Refresh token required' });
+
+    // Check if token exists in DB
+    const [tokens] = await pool.query('SELECT * FROM refresh_tokens WHERE token = ?', [token]);
+    if (tokens.length === 0) return res.status(403).json({ message: 'Invalid refresh token' });
+
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    
+    const [users] = await pool.query('SELECT id, name, email, role FROM users WHERE id = ?', [decoded.id]);
+    if (users.length === 0) return res.status(404).json({ message: 'User not found' });
+
+    const user = users[0];
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = generateTokens(user);
+
+    // Replace old refresh token with new one (rotation)
+    await pool.query('DELETE FROM refresh_tokens WHERE token = ?', [token]);
+    await pool.query(
+      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, ?)',
+      [user.id, newRefreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)]
+    );
+
+    setTokenCookies(res, newAccessToken, newRefreshToken);
+
+    res.json({ message: 'Token refreshed successfully' });
+  } catch (error) {
+    logger.error('Refresh token error:', error);
+    res.status(403).json({ message: 'Invalid refresh token' });
+  }
+};
+
+const logout = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    if (token) {
+      await pool.query('DELETE FROM refresh_tokens WHERE token = ?', [token]);
+    }
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    logger.error('Logout error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -92,7 +173,7 @@ const getMe = async (req, res) => {
 
     res.json(users[0]);
   } catch (error) {
-    console.error('Get me error:', error);
+    logger.error('Get me error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -118,7 +199,7 @@ const updateProfile = async (req, res) => {
 
     res.json({ message: 'Profile updated successfully', user: users[0] });
   } catch (error) {
-    console.error('Update profile error:', error);
+    logger.error('Update profile error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -144,7 +225,7 @@ const changePassword = async (req, res) => {
 
     res.json({ message: 'Password changed successfully' });
   } catch (error) {
-    console.error('Change password error:', error);
+    logger.error('Change password error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -160,7 +241,7 @@ const updateAvatar = async (req, res) => {
 
     res.json({ message: 'Avatar updated successfully', avatar: avatarUrl });
   } catch (error) {
-    console.error('Update avatar error:', error);
+    logger.error('Update avatar error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -176,7 +257,7 @@ const updateNotifications = async (req, res) => {
 
     res.json({ message: 'Notification preferences updated successfully' });
   } catch (error) {
-    console.error('Update notifications error:', error);
+    logger.error('Update notifications error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -207,9 +288,21 @@ const getLearningStats = async (req, res) => {
       completedLessons: lessonProgress[0]?.completed_lessons || 0
     });
   } catch (error) {
-    console.error('Get learning stats error:', error);
+    logger.error('Get learning stats error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-module.exports = { register, login, getMe, updateProfile, changePassword, updateAvatar, updateNotifications, getLearningStats };
+module.exports = { 
+  register, 
+  login, 
+  refreshToken, 
+  logout, 
+  getMe, 
+  updateProfile, 
+  changePassword, 
+  updateAvatar, 
+  updateNotifications, 
+  getLearningStats 
+};
+

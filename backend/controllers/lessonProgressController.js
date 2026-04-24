@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const markLessonComplete = async (req, res) => {
@@ -59,7 +60,7 @@ const markLessonComplete = async (req, res) => {
       totalLessons: totalLessons[0].total
     });
   } catch (error) {
-    console.error('Mark lesson complete error:', error);
+    logger.error('Mark lesson complete error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -110,7 +111,7 @@ const markLessonIncomplete = async (req, res) => {
       res.json({ message: 'Lesson marked as incomplete' });
     }
   } catch (error) {
-    console.error('Mark lesson incomplete error:', error);
+    logger.error('Mark lesson incomplete error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -129,7 +130,7 @@ const getLessonProgress = async (req, res) => {
       completedAt: progress.length > 0 ? progress[0].completed_at : null
     });
   } catch (error) {
-    console.error('Get lesson progress error:', error);
+    logger.error('Get lesson progress error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -156,7 +157,7 @@ const getCourseLessonProgress = async (req, res) => {
 
     res.json(progressMap);
   } catch (error) {
-    console.error('Get course lesson progress error:', error);
+    logger.error('Get course lesson progress error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -185,7 +186,7 @@ const getLastIncompleteLesson = async (req, res) => {
       res.json(firstLesson.length > 0 ? { lessonId: firstLesson[0].id, title: firstLesson[0].title } : null);
     }
   } catch (error) {
-    console.error('Get last incomplete lesson error:', error);
+    logger.error('Get last incomplete lesson error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -197,3 +198,4 @@ module.exports = {
   getCourseLessonProgress,
   getLastIncompleteLesson
 };
+

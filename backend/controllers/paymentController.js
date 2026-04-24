@@ -1,5 +1,5 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
-const logger = require('../config/logger');
 const path = require('path');
 const fs = require('fs');
 
@@ -74,7 +74,7 @@ const uploadPayment = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Upload payment error:', error);
+    logger.error('Upload payment error:', error);
     if (req.file) {
       try { fs.unlinkSync(req.file.path); } catch (e) {}
     }
@@ -100,7 +100,7 @@ const getMyPayments = async (req, res) => {
 
     res.json(normalizedPayments);
   } catch (error) {
-    console.error('Get payments error:', error);
+    logger.error('Get payments error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -128,7 +128,7 @@ const getPaymentByEnrollment = async (req, res) => {
 
     res.json(normalizedPayment);
   } catch (error) {
-    console.error('Get payment error:', error);
+    logger.error('Get payment error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -172,7 +172,7 @@ const verifyPayment = async (req, res) => {
 
     res.json({ message: `Payment ${status} successfully` });
   } catch (error) {
-    console.error('Verify payment error:', error);
+    logger.error('Verify payment error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -199,7 +199,7 @@ const getAllPayments = async (req, res) => {
 
     res.json(normalizedPayments);
   } catch (error) {
-    console.error('Get all payments error:', error);
+    logger.error('Get all payments error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -223,7 +223,7 @@ const getPendingPayments = async (req, res) => {
 
     res.json(normalizedPayments);
   } catch (error) {
-    console.error('Get pending payments error:', error);
+    logger.error('Get pending payments error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

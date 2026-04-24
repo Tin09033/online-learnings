@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 const path = require('path');
 const fs = require('fs');
@@ -12,7 +13,7 @@ const getPaymentSettings = async (req, res) => {
 
     res.json(settings[0]);
   } catch (error) {
-    console.error('Get payment settings error:', error);
+    logger.error('Get payment settings error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -65,7 +66,7 @@ const updatePaymentSettings = async (req, res) => {
 
     res.json({ message: 'Payment settings updated successfully' });
   } catch (error) {
-    console.error('Update payment settings error:', error);
+    logger.error('Update payment settings error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -74,3 +75,4 @@ module.exports = {
   getPaymentSettings,
   updatePaymentSettings
 };
+

@@ -14,6 +14,7 @@ import StudentNotifications from './pages/StudentNotifications';
 import StudentSettings from './pages/StudentSettings';
 import StudentAnnouncements from './pages/StudentAnnouncements';
 import StudentPayments from './pages/StudentPayments';
+import StudentDashboard from './pages/StudentDashboard';
 import StudentCourses from './pages/StudentCourses';
 import CourseLearning from './pages/CourseLearning';
 import AdminDashboard from './pages/AdminDashboard';
@@ -41,7 +42,7 @@ function App() {
               <StudentLayout />
             </ProtectedRoute>
           }>
-            <Route index element={<Navigate to="/student/courses" replace />} />
+            <Route index element={<StudentDashboard />} />
             <Route path="profile" element={<StudentProfile />} />
             <Route path="notifications" element={<StudentNotifications />} />
             <Route path="courses" element={<StudentCourses />} />

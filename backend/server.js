@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const { initDatabase } = require('./config/database');
@@ -25,6 +26,7 @@ const studentEventRoutes = require('./routes/studentEvents');
 const learningPathRoutes = require('./routes/learningPaths');
 const studentGoalsRoutes = require('./routes/studentGoals');
 const learningResourceRoutes = require('./routes/learningResources');
+const logger = require('./utils/logger');
 
 const fs = require('fs');
 
@@ -131,8 +133,15 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.url}`);
+  next();
+});
 
 // Rate limiting for auth routes
 const authLimiter = rateLimit({
@@ -160,12 +169,15 @@ app.use('/api/auth/register', loginLimiter);
 app.use('/api/auth', authLimiter);
 
 app.use('/api/auth', authRoutes);
-app.use('/api/courses', courseRoutes);
+// IMPORTANT: lesson and handout routes MUST be mounted before courseRoutes.
+// courseRoutes has a greedy GET /:id handler that would intercept
+// /api/courses/:id/lessons and /api/courses/:id/handouts otherwise.
 app.use('/api', lessonRoutes);
-app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/users', userRoutes);
 app.use('/api', lessonProgressRoutes);
 app.use('/api', handoutRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/payments', paymentRoutes);
@@ -214,7 +226,7 @@ app.get('*', (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err.stack);
+  logger.error('Server Error:', err);
   if (err.message === 'Only image files are allowed!') {
     return res.status(400).json({ message: err.message });
   }
@@ -236,10 +248,10 @@ const startServer = async () => {
   try {
     await initDatabase();
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   }
 };

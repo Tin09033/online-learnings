@@ -1,7 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { BookOpen, Play, CheckCircle, ChevronLeft, ChevronRight, Clock, Video, FileText, Download, Lock, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  BookOpen, 
+  Play, 
+  CheckCircle, 
+  ChevronLeft, 
+  ChevronRight, 
+  Clock, 
+  Video, 
+  FileText, 
+  Download, 
+  Lock, 
+  X,
+  Maximize2,
+  List,
+  Award
+} from 'lucide-react';
 import { coursesAPI, lessonProgressAPI, handoutAPI } from '../services/api';
 import { toast } from 'react-toastify';
 import { getHandoutUrl, getVideoUrl, getDocumentUrl } from '../utils/apiUrl';
@@ -16,10 +31,11 @@ const CourseLearning = () => {
   const [handouts, setHandouts] = useState([]);
   const [completing, setCompleting] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     fetchCourse();
-    fetchHandouts(); // Fetch handouts regardless of enrollment
+    fetchHandouts();
   }, [id]);
 
   useEffect(() => {
@@ -116,68 +132,12 @@ const CourseLearning = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="w-12 h-12 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin" />
       </div>
     );
   }
 
-  if (!course) {
-    return (
-      <div className="text-center py-12">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          Course not found
-        </h2>
-        <Link to="/student/courses" className="text-blue-500 hover:text-blue-600">
-          Go back to My Courses
-        </Link>
-      </div>
-    );
-  }
-
-  if (!course.enrollment) {
-    return (
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center py-12 mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
-          <BookOpen className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-            You are not enrolled in this course
-          </h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">
-            Please enroll first to access the course content
-          </p>
-          <Link to="/courses" className="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
-            Browse Courses
-          </Link>
-        </div>
-
-        {handouts.length > 0 && (
-          <div className="card-raised p-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <FileText className="h-6 w-6 text-green-600" />
-              Course Handouts Preview ({handouts.length})
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              Enroll in this course to access these handouts
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {handouts.map((handout) => (
-                <div
-                  key={handout.id}
-                  className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <FileText className="h-5 w-5 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{handout.title}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Available after enrollment</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
+  if (!course) return null;
 
   const totalLessons = course.lessons?.length || 0;
   const completedLessons = Object.values(course.lessonProgress || {}).filter(p => p.completed).length;
@@ -185,223 +145,269 @@ const CourseLearning = () => {
   const isLessonCompleted = selectedLesson && course.lessonProgress?.[selectedLesson.id]?.completed;
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {showCelebration && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        >
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 -m-4 sm:-m-6 lg:-m-8">
+      <AnimatePresence>
+        {showCelebration && (
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring' }}
-            className="card-raised p-8 text-center max-w-md mx-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md"
           >
-            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="h-10 w-10 text-green-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Congratulations!</h2>
-            <p className="text-gray-600 dark:text-gray-300">You have completed all lessons in this course!</p>
+            <motion.div
+              initial={{ scale: 0.5, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-white dark:bg-gray-800 p-10 rounded-[2.5rem] text-center shadow-premium-xl max-w-sm mx-4 border border-white/20"
+            >
+              <div className="w-24 h-24 bg-primary-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-dual-lg">
+                <Award className="h-12 w-12 text-white" />
+              </div>
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Amazing Job!</h2>
+              <p className="text-gray-500 dark:text-gray-400 font-medium leading-relaxed">You've mastered all the modules in this course. Your certificate is ready!</p>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
 
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <Link to="/student/courses" className="text-blue-500 hover:text-blue-600 flex items-center gap-1 text-sm mb-2">
-            <ChevronLeft className="h-4 w-4" />
-            Back to My Courses
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{course.title}</h1>
-        </div>
-        <div className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-dual-sm">
-          <span className="font-semibold">{progress}%</span> Complete
-        </div>
-      </div>
+      <div className="flex h-screen overflow-hidden">
+        {/* Module Sidebar */}
+        <AnimatePresence duration={0.3}>
+          {sidebarOpen && (
+            <motion.aside
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="w-80 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 flex flex-col z-40 hidden lg:flex"
+            >
+              <div className="p-6 border-b border-gray-50 dark:border-gray-700">
+                <Link to="/student/courses" className="text-primary-500 hover:text-primary-600 flex items-center gap-2 text-sm font-black uppercase tracking-widest mb-4">
+                  <ChevronLeft className="h-4 w-4" />
+                  Course Exit
+                </Link>
+                <h2 className="text-xl font-black text-gray-900 dark:text-white leading-tight tracking-tight line-clamp-2">
+                  {course.title}
+                </h2>
+                <div className="mt-4">
+                  <div className="flex justify-between text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
+                    <span>Progress</span>
+                    <span>{progress}%</span>
+                  </div>
+                  <div className="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-primary-gradient"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <div className="card-raised p-4 sticky top-4">
-            <h2 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              Course Modules
-            </h2>
-            <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-              {course.lessons?.map((lesson, index) => {
-                const isCompleted = course.lessonProgress?.[lesson.id]?.completed;
-                const isActive = selectedLesson?.id === lesson.id;
-                return (
-                  <button
-                    key={lesson.id}
-                    onClick={() => handleLessonSelect(lesson, index)}
-                    className={`w-full text-left p-3 rounded-lg transition-all flex items-center gap-3
-                      ${isActive ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}
-                      ${isCompleted && !isActive ? 'opacity-75' : ''}`}
-                  >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
-                      ${isActive ? 'bg-white/20' : isCompleted ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-200 dark:bg-gray-600'}`}>
-                      {isCompleted ? (
-                        <CheckCircle className={`h-4 w-4 ${isActive ? 'text-white' : 'text-green-500'}`} />
-                      ) : (
-                        <span className={`text-sm font-medium ${isActive ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
-                          {index + 1}
+              <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+                {course.lessons?.map((lesson, index) => {
+                  const isCompleted = course.lessonProgress?.[lesson.id]?.completed;
+                  const isActive = selectedLesson?.id === lesson.id;
+                  return (
+                    <motion.button
+                      key={lesson.id}
+                      whileHover={{ x: 4 }}
+                      onClick={() => handleLessonSelect(lesson, index)}
+                      className={`w-full text-left p-4 rounded-2xl transition-all flex items-center gap-4 group
+                        ${isActive 
+                          ? 'bg-primary-gradient text-white shadow-dual-md' 
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
+                    >
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors
+                        ${isActive ? 'bg-white/20' : isCompleted ? 'bg-green-100 dark:bg-green-900/40 text-green-600' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                        {isCompleted ? <CheckCircle className="h-4 w-4" /> : <span className="text-xs font-bold">{index + 1}</span>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-bold truncate ${isActive ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+                          {lesson.title}
+                        </p>
+                        <p className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-white/60' : 'text-gray-400'}`}>
+                          {lesson.duration || '10 min'}
+                        </p>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {handouts.length > 0 && (
+                <div className="p-4 border-t border-gray-50 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3 px-2">Handouts</h3>
+                  <div className="space-y-2">
+                    {handouts.slice(0, 3).map((handout) => (
+                      <a
+                        key={handout.id}
+                        href={getHandoutUrl(handout.file_path)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-premium-sm transition-all"
+                      >
+                        <FileText className="h-4 w-4 text-primary-500" />
+                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 truncate">{handout.title}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.aside>
+          )}
+        </AnimatePresence>
+
+        {/* Main Learning Content */}
+        <main className="flex-1 overflow-y-auto relative bg-gray-50 dark:bg-gray-900 transition-all duration-300">
+          <header className="sticky top-0 z-30 p-6 flex items-center justify-between lg:justify-start gap-4 pointer-events-none">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-premium-sm pointer-events-auto hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700 group"
+            >
+              {sidebarOpen ? <X className="h-5 w-5 text-gray-500" /> : <List className="h-5 w-5 text-primary-500" />}
+            </button>
+            {!sidebarOpen && (
+              <motion.h1 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-lg font-black text-gray-900 dark:text-white tracking-tight pointer-events-auto"
+              >
+                {course.title}
+              </motion.h1>
+            )}
+          </header>
+
+          <div className="max-w-5xl mx-auto px-6 pb-24">
+            <motion.div 
+              layout
+              className="space-y-8"
+            >
+              {selectedLesson ? (
+                <>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        Module {currentLessonIndex + 1}
+                      </span>
+                      {isLessonCompleted && (
+                        <span className="flex items-center gap-1 text-green-500 text-[10px] font-black uppercase tracking-widest">
+                          <CheckCircle className="h-3 w-3" />
+                          Mastered
                         </span>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${isActive ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
-                        {lesson.title}
-                      </p>
+                    <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{selectedLesson.title}</h2>
+                  </div>
+
+                  {/* Video Player Container */}
+                  <div className="group relative rounded-[2.5rem] overflow-hidden bg-black shadow-premium-xl border border-white/10 card-premium-raised">
+                    <div className="aspect-video">
+                      {selectedLesson.video_url ? (
+                        <video
+                          src={selectedLesson.video_url}
+                          controls
+                          className="w-full h-full"
+                        />
+                      ) : selectedLesson.video_file ? (
+                        <video
+                          src={getVideoUrl(selectedLesson.video_file)}
+                          controls
+                          className="w-full h-full"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-white/40 space-y-4">
+                          <Video className="w-16 h-16 opacity-20" />
+                          <p className="font-bold">No video content for this lesson.</p>
+                        </div>
+                      )}
                     </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Course Handouts ({handouts.length})
-              </h3>
-              <div className="space-y-2 max-h-[30vh] overflow-y-auto">
-                {handouts.map((handout) => (
-                  <a
-                    key={handout.id}
-                    href={getHandoutUrl(handout.file_path)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between gap-2 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30 transition-all"
-                  >
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium text-green-800 dark:text-green-300 truncate">{handout.title}</span>
-                    </div>
-                    <Download className="h-4 w-4 text-green-600 flex-shrink-0" />
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-2">
-          <div className="card-raised overflow-hidden">
-            {selectedLesson ? (
-              <>
-                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Module {currentLessonIndex + 1} of {totalLessons}
-                    </span>
-                    {isLessonCompleted && (
-                      <span className="flex items-center gap-1 text-green-500 text-sm">
-                        <CheckCircle className="h-4 w-4" />
-                        Completed
-                      </span>
-                    )}
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedLesson.title}</h2>
-                </div>
 
-                {selectedLesson.video_url && (
-                  <div className="aspect-video bg-black">
-                    <video
-                      src={selectedLesson.video_url}
-                      controls
-                      className="w-full h-full"
-                    />
-                  </div>
-                )}
-
-                {selectedLesson.video_file && (
-                  <div className="aspect-video bg-black">
-                    <video
-                      src={getVideoUrl(selectedLesson.video_file)}
-                      controls
-                      className="w-full h-full"
-                    />
-                  </div>
-                )}
-
-                {selectedLesson.document_file && (
-                  <div className="m-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <a
-                      href={getDocumentUrl(selectedLesson.document_file)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-200"
+                  {/* Documents */}
+                  {selectedLesson.document_file && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-premium-sm flex items-center justify-between group overflow-hidden relative"
                     >
-                      <FileText className="h-6 w-6" />
-                      <div>
-                        <p className="font-medium">Download Lesson Document</p>
-                        <p className="text-sm opacity-75">Click to view or download the document</p>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center text-primary-500 group-hover:scale-110 transition-transform">
+                          <FileText className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900 dark:text-white">Lesson Resources</p>
+                          <p className="text-xs text-gray-500">Support materials for this module</p>
+                        </div>
                       </div>
-                      <Download className="h-5 w-5 ml-auto" />
-                    </a>
-                  </div>
-                )}
+                      <a
+                        href={getDocumentUrl(selectedLesson.document_file)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-primary-gradient text-white rounded-xl text-sm font-black shadow-dual-sm hover:shadow-dual-md transition-all active:scale-95"
+                      >
+                        Download
+                      </a>
+                    </motion.div>
+                  )}
 
-                <div className="p-6">
-                  <div className="prose dark:prose-invert max-w-none">
-                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                      {selectedLesson.content || 'No content available for this lesson.'}
+                  {/* Content Body */}
+                  <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-black prose-p:text-gray-600 dark:prose-p:text-gray-400">
+                    <p className="whitespace-pre-wrap leading-relaxed">
+                      {selectedLesson.content || 'No detailed content available for this lesson.'}
                     </p>
                   </div>
-
-                  <div className="mt-8 flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <button
-                      onClick={handlePrevious}
-                      disabled={currentLessonIndex === 0}
-                      className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                      Previous
-                    </button>
-
-                    {!isLessonCompleted ? (
-                      <button
-                        onClick={handleComplete}
-                        disabled={completing}
-                        className="flex items-center gap-2 bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
-                      >
-                        {completing ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                            Marking...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="h-5 w-5" />
-                            Mark as Complete
-                          </>
-                        )}
-                      </button>
-                    ) : currentLessonIndex < totalLessons - 1 ? (
-                      <button
-                        onClick={handleNext}
-                        className="flex items-center gap-2 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                      >
-                        Next Lesson
-                        <ChevronRight className="h-5 w-5" />
-                      </button>
-                    ) : (
-                      <span className="text-green-500 font-medium flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5" />
-                        Course Completed!
-                      </span>
-                    )}
+                </>
+              ) : (
+                <div className="py-24 text-center">
+                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                    <Play className="h-10 w-10 text-gray-300" />
                   </div>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white">Ready to start?</h3>
+                  <p className="text-gray-500 font-medium">Select your first module from the list to begin.</p>
                 </div>
-              </>
-            ) : (
-              <div className="p-12 text-center dark:bg-gray-800">
-                <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">Select a lesson to start learning</p>
-              </div>
-            )}
+              )}
+            </motion.div>
           </div>
-        </div>
+
+          {/* Persistent Player Navigation */}
+          <footer className="fixed bottom-8 left-1/2 lg:left-auto lg:right-8 -translate-x-1/2 lg:translate-x-0 z-40">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl px-4 py-4 rounded-[2rem] shadow-premium-xl border border-white/20 flex items-center gap-4">
+              <button
+                onClick={handlePrevious}
+                disabled={currentLessonIndex === 0}
+                className="p-3 text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+              >
+                <ChevronLeft className="h-6 w-6 font-bold" />
+              </button>
+
+              {!isLessonCompleted ? (
+                <button
+                  onClick={handleComplete}
+                  disabled={completing}
+                  className="px-8 py-3 bg-primary-gradient text-white rounded-[1.25rem] font-black text-sm shadow-dual-md hover:shadow-dual-lg transition-all active:scale-95 flex items-center gap-2 min-w-[180px] justify-center"
+                >
+                  {completing ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><CheckCircle className="h-5 w-5" /> Mark as Mastered</>}
+                </button>
+              ) : (
+                <button
+                  onClick={handleNext}
+                  disabled={currentLessonIndex === totalLessons - 1}
+                  className="px-8 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-[1.25rem] font-black text-sm shadow-dual-md hover:shadow-dual-lg transition-all active:scale-95 flex items-center gap-2 min-w-[180px] justify-center disabled:opacity-30"
+                >
+                  Next Module <ChevronRight className="h-5 w-5" />
+                </button>
+              )}
+
+              <button
+                onClick={handleNext}
+                disabled={currentLessonIndex === totalLessons - 1}
+                className="p-3 text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+              >
+                <ChevronRight className="h-6 w-6 font-bold" />
+              </button>
+            </div>
+          </footer>
+        </main>
       </div>
     </div>
   );

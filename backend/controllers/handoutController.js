@@ -1,11 +1,12 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getCourseHandouts = async (req, res) => {
   try {
     const { courseId } = req.params;
     
-    console.log('Fetching handouts for course:', courseId);
-    console.log('User:', req.user?.id);
+    logger.info('Fetching handouts for course:', courseId);
+    logger.info('User:', req.user?.id);
 
     const [handouts] = await pool.query(
       'SELECT * FROM handouts WHERE course_id = ? ORDER BY created_at DESC',
@@ -14,7 +15,7 @@ const getCourseHandouts = async (req, res) => {
 
     res.json(handouts);
   } catch (error) {
-    console.error('Get handouts error:', error);
+    logger.error('Get handouts error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -58,7 +59,7 @@ const addHandout = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Add handout error:', error);
+    logger.error('Add handout error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -93,7 +94,7 @@ const updateHandout = async (req, res) => {
 
     res.json({ message: 'Handout updated successfully' });
   } catch (error) {
-    console.error('Update handout error:', error);
+    logger.error('Update handout error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -111,7 +112,7 @@ const deleteHandout = async (req, res) => {
 
     res.json({ message: 'Handout deleted successfully' });
   } catch (error) {
-    console.error('Delete handout error:', error);
+    logger.error('Delete handout error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -137,7 +138,7 @@ const getStudentHandouts = async (req, res) => {
 
     res.json(handouts);
   } catch (error) {
-    console.error('Get student handouts error:', error);
+    logger.error('Get student handouts error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -149,3 +150,4 @@ module.exports = {
   deleteHandout,
   getStudentHandouts
 };
+

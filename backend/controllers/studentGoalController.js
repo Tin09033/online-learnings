@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getMyGoals = async (req, res) => {
@@ -12,7 +13,7 @@ const getMyGoals = async (req, res) => {
 
     res.json(goals);
   } catch (error) {
-    console.error('Get goals error:', error);
+    logger.error('Get goals error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -45,7 +46,7 @@ const createGoal = async (req, res) => {
       created_at: new Date()
     });
   } catch (error) {
-    console.error('Create goal error:', error);
+    logger.error('Create goal error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -83,7 +84,7 @@ const updateGoal = async (req, res) => {
 
     res.json({ message: 'Goal updated successfully' });
   } catch (error) {
-    console.error('Update goal error:', error);
+    logger.error('Update goal error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -99,7 +100,7 @@ const deleteGoal = async (req, res) => {
 
     res.json({ message: 'Goal deleted successfully' });
   } catch (error) {
-    console.error('Delete goal error:', error);
+    logger.error('Delete goal error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -128,7 +129,7 @@ const updateProgress = async (req, res) => {
 
     res.json({ message: 'Progress updated', current_value: newValue, status: newStatus });
   } catch (error) {
-    console.error('Update progress error:', error);
+    logger.error('Update progress error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -140,3 +141,4 @@ module.exports = {
   deleteGoal,
   updateProgress
 };
+

@@ -14,6 +14,16 @@
 
 @layer components {
   /* Card with depth hierarchy */
+  .card-premium-raised {
+    @apply bg-surface-raised/80 backdrop-blur-md shadow-premium-md rounded-2xl 
+           border border-white/20 dark:bg-gray-800/80 dark:border-gray-700/30;
+  }
+  
+  .card-premium-hover {
+    @apply transition-all duration-500 ease-out
+           hover:shadow-premium-xl hover:-translate-y-2 hover:bg-surface-raised;
+  }
+
   .card-raised {
     @apply bg-surface-raised shadow-depth-md rounded-2xl dark:bg-gray-800 dark:border dark:border-gray-700;
   }
@@ -29,11 +39,34 @@
   /* Interactive card with hover elevation */
   .card-interactive {
     @apply bg-surface-raised shadow-depth-md rounded-2xl dark:bg-gray-800 dark:border dark:border-gray-700 
-           transition-all duration-300 ease-out
-           hover:shadow-depth-xl hover:-translate-y-1;
+           transition-all duration-500 ease-cinematic
+           hover:shadow-premium-lg hover:-translate-y-1.5 hover:ring-1 hover:ring-primary-500/20;
   }
   
   /* Button depth styles */
+  .btn-premium {
+    @apply relative overflow-hidden
+           bg-primary-gradient text-white
+           shadow-premium-md rounded-xl
+           px-8 py-3 font-semibold
+           transition-all duration-300;
+    
+    &::after {
+      @apply absolute inset-0 bg-white/10 opacity-0 transition-opacity;
+    }
+    
+    &:hover {
+      @apply shadow-premium-lg -translate-y-1 brightness-110;
+      &::after {
+        @apply opacity-100;
+      }
+    }
+    
+    &:active {
+      @apply shadow-premium-sm translate-y-0;
+    }
+  }
+
   .btn-elevated {
     @apply relative overflow-hidden
            bg-primary-600 text-white
@@ -50,7 +83,7 @@
   
   /* Input/Select with sunken effect */
   .input-sunken {
-    @apply bg-surface-sunken shadow-sunken-sm rounded-xl dark:bg-gray-900 dark:text-gray-100 dark:border dark:border-gray-700
+    @apply bg-surface-sunken shadow-inset-md rounded-xl dark:bg-gray-900/50 dark:text-gray-100 dark:border dark:border-gray-700
            border-0 outline-none
            focus:ring-2 focus:ring-primary-500/30 focus:bg-surface-base dark:focus:bg-gray-800
            transition-all duration-200;
@@ -63,22 +96,31 @@
   
   .progress-fill {
     @apply bg-primary-gradient shadow-dual-sm rounded-full
-           transition-all duration-500 ease-out;
+           transition-all duration-700 ease-smooth;
   }
   
   /* Navigation depth layering */
+  .nav-glass {
+    @apply bg-white/70 backdrop-blur-lg shadow-premium-sm dark:bg-gray-900/70 border-b border-white/20 dark:border-gray-800/20;
+  }
+
   .nav-depth {
     @apply bg-surface-raised shadow-dual-sm dark:bg-gray-800 dark:border-b dark:border-gray-700;
   }
   
   /* Dropdown with shiny effect */
   .dropdown-elevated {
-    @apply bg-surface-raised shadow-depth-lg rounded-xl dark:bg-gray-800
-           border border-gray-100/50 dark:border-gray-700
-           bg-gradient-to-b from-white to-gray-50/30 dark:from-gray-800 dark:to-gray-900;
+    @apply bg-surface-raised/90 backdrop-blur-md shadow-premium-lg rounded-xl dark:bg-gray-800/90
+           border border-white/20 dark:border-gray-700/20;
   }
   
   /* Badge with glow */
+  .badge-premium {
+    @apply bg-primary-gradient text-white
+           shadow-glow-primary-sm rounded-full
+           font-bold text-xs px-3 py-1 uppercase tracking-wider;
+  }
+
   .badge-glow {
     @apply bg-primary-100 text-primary-700 
            shadow-glow-primary-sm rounded-full
@@ -86,6 +128,11 @@
   }
   
   /* Section depth containers */
+  .section-premium-hero {
+    @apply bg-gradient-to-b from-surface-base via-surface-raised to-surface-base
+           dark:from-gray-950 dark:via-gray-900 dark:to-gray-950;
+  }
+
   .section-base {
     @apply bg-surface-base dark:bg-gray-800;
   }
@@ -100,10 +147,22 @@
 }
 
 @layer utilities {
+  .text-gradient-premium {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary-400 via-primary-600 to-primary-900
+           animate-gradient-shimmer bg-[length:200%_200%];
+  }
+
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400;
   }
   
+  /* Shimmer effect for borders/backgrounds */
+  .shimmer {
+    @apply relative overflow-hidden before:absolute before:inset-0 
+           before:-translate-x-full before:animate-[shimmer_2s_infinite] 
+           before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent;
+  }
+
   /* Depth layering utilities */
   .depth-0 { background-color: #ffffff; }
   .depth-1 { background-color: #f8fafc; }
@@ -141,6 +200,11 @@
   }
   
   /* Hover lift effect */
+  .hover-lift-premium {
+    @apply transition-all duration-500 ease-cinematic
+           hover:-translate-y-2 hover:shadow-premium-xl;
+  }
+
   .hover-lift {
     @apply transition-all duration-300 ease-out
            hover:-translate-y-1 hover:shadow-depth-lg;

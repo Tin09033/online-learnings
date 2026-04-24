@@ -38,6 +38,12 @@ export default {
         }
       },
       boxShadow: {
+        // Premium Double-Layer Shadows
+        'premium-sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+        'premium-md': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.02), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+        'premium-lg': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.15)',
+        'premium-xl': '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.2)',
+        
         // Small depth shadow - subtle elevation
         'depth-sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.1)',
         // Medium depth shadow - standard elevation
@@ -60,6 +66,28 @@ export default {
         // Glow shadows
         'glow-primary': '0 0 20px 2px rgba(37, 99, 235, 0.3)',
         'glow-primary-sm': '0 0 10px 1px rgba(37, 99, 235, 0.2)',
+      },
+      transitionTimingFunction: {
+        'cinematic': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'smooth': 'cubic-bezier(0.65, 0, 0.35, 1)',
+      },
+      animation: {
+        'shimmer': 'shimmer 2s infinite linear',
+        'gradient-shimmer': 'gradient-shimmer 3s infinite alternate',
+        'float': 'float 6s ease-in-out infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'gradient-shimmer': {
+          '0%': { backgroundPosition: '0% 50%' },
+          '100%': { backgroundPosition: '100% 50%' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
       },
       backgroundImage: {
         // Gradient for elevated/shiny effect

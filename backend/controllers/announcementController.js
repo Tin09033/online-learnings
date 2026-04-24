@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getAllAnnouncements = async (req, res) => {
@@ -42,7 +43,7 @@ const getAllAnnouncements = async (req, res) => {
 
     res.json(announcementsWithGroups);
   } catch (error) {
-    console.error('Get announcements error:', error);
+    logger.error('Get announcements error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -63,7 +64,7 @@ const getCourseAnnouncements = async (req, res) => {
 
     res.json(announcements);
   } catch (error) {
-    console.error('Get course announcements error:', error);
+    logger.error('Get course announcements error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -176,7 +177,7 @@ const createAnnouncement = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create announcement error:', error);
+    logger.error('Create announcement error:', error);
     res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
@@ -209,7 +210,7 @@ const updateAnnouncement = async (req, res) => {
 
     res.json({ message: 'Announcement updated successfully' });
   } catch (error) {
-    console.error('Update announcement error:', error);
+    logger.error('Update announcement error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -227,7 +228,7 @@ const deleteAnnouncement = async (req, res) => {
 
     res.json({ message: 'Announcement deleted successfully' });
   } catch (error) {
-    console.error('Delete announcement error:', error);
+    logger.error('Delete announcement error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -263,7 +264,7 @@ const getStudentAnnouncements = async (req, res) => {
     const [announcements] = await pool.query(query, params);
     res.json(announcements);
   } catch (error) {
-    console.error('Get student announcements error:', error);
+    logger.error('Get student announcements error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -276,3 +277,4 @@ module.exports = {
   deleteAnnouncement,
   getStudentAnnouncements
 };
+

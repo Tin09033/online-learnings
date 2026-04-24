@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getMyEvents = async (req, res) => {
@@ -12,7 +13,7 @@ const getMyEvents = async (req, res) => {
 
     res.json(events);
   } catch (error) {
-    console.error('Get events error:', error);
+    logger.error('Get events error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -41,7 +42,7 @@ const createEvent = async (req, res) => {
       created_at: new Date()
     });
   } catch (error) {
-    console.error('Create event error:', error);
+    logger.error('Create event error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -74,7 +75,7 @@ const updateEvent = async (req, res) => {
 
     res.json({ message: 'Event updated successfully' });
   } catch (error) {
-    console.error('Update event error:', error);
+    logger.error('Update event error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -90,7 +91,7 @@ const deleteEvent = async (req, res) => {
 
     res.json({ message: 'Event deleted successfully' });
   } catch (error) {
-    console.error('Delete event error:', error);
+    logger.error('Delete event error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -101,3 +102,4 @@ module.exports = {
   updateEvent,
   deleteEvent
 };
+

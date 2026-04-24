@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getAllGroups = async (req, res) => {
@@ -12,7 +13,7 @@ const getAllGroups = async (req, res) => {
 
     res.json(groups);
   } catch (error) {
-    console.error('Get groups error:', error);
+    logger.error('Get groups error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -42,7 +43,7 @@ const getGroupById = async (req, res) => {
 
     res.json({ ...group[0], members });
   } catch (error) {
-    console.error('Get group error:', error);
+    logger.error('Get group error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -65,7 +66,7 @@ const createGroup = async (req, res) => {
       group: { id: result.insertId, name, description }
     });
   } catch (error) {
-    console.error('Create group error:', error);
+    logger.error('Create group error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -87,7 +88,7 @@ const updateGroup = async (req, res) => {
 
     res.json({ message: 'Group updated successfully' });
   } catch (error) {
-    console.error('Update group error:', error);
+    logger.error('Update group error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -105,7 +106,7 @@ const deleteGroup = async (req, res) => {
 
     res.json({ message: 'Group deleted successfully' });
   } catch (error) {
-    console.error('Delete group error:', error);
+    logger.error('Delete group error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -142,7 +143,7 @@ const addMembers = async (req, res) => {
 
     res.json({ message: `${students.length} students added to group` });
   } catch (error) {
-    console.error('Add members error:', error);
+    logger.error('Add members error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -167,7 +168,7 @@ const removeMember = async (req, res) => {
 
     res.json({ message: 'Member removed from group' });
   } catch (error) {
-    console.error('Remove member error:', error);
+    logger.error('Remove member error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -188,7 +189,7 @@ const getStudentsNotInGroup = async (req, res) => {
 
     res.json(students);
   } catch (error) {
-    console.error('Get students not in group error:', error);
+    logger.error('Get students not in group error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -204,7 +205,7 @@ const getAllStudents = async (req, res) => {
 
     res.json(students);
   } catch (error) {
-    console.error('Get all students error:', error);
+    logger.error('Get all students error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -223,7 +224,7 @@ const getMyGroups = async (req, res) => {
 
     res.json(groups);
   } catch (error) {
-    console.error('Get my groups error:', error);
+    logger.error('Get my groups error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -262,7 +263,7 @@ const getGroupDetails = async (req, res) => {
       members
     });
   } catch (error) {
-    console.error('Get group details error:', error);
+    logger.error('Get group details error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -281,7 +282,7 @@ const getGroupMembers = async (req, res) => {
 
     res.json(members);
   } catch (error) {
-    console.error('Get group members error:', error);
+    logger.error('Get group members error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -297,7 +298,7 @@ const leaveGroup = async (req, res) => {
 
     res.json({ message: 'Left group successfully' });
   } catch (error) {
-    console.error('Leave group error:', error);
+    logger.error('Leave group error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -328,7 +329,7 @@ const joinGroup = async (req, res) => {
 
     res.json({ message: 'Joined group successfully' });
   } catch (error) {
-    console.error('Join group error:', error);
+    logger.error('Join group error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -349,3 +350,4 @@ module.exports = {
   joinGroup,
   leaveGroup
 };
+

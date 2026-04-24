@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getCourseAnalytics = async (req, res) => {
@@ -66,7 +67,7 @@ const getCourseAnalytics = async (req, res) => {
       recentActivity
     });
   } catch (error) {
-    console.error('Get course analytics error:', error);
+    logger.error('Get course analytics error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -121,7 +122,7 @@ const getStudentAnalytics = async (req, res) => {
       overallStats
     });
   } catch (error) {
-    console.error('Get student analytics error:', error);
+    logger.error('Get student analytics error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -186,7 +187,7 @@ const getDashboardAnalytics = async (req, res) => {
       recentActivity
     });
   } catch (error) {
-    console.error('Get dashboard analytics error:', error);
+    logger.error('Get dashboard analytics error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -196,3 +197,4 @@ module.exports = {
   getStudentAnalytics,
   getDashboardAnalytics
 };
+

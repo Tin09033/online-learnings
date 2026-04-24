@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getAllUsers = async (req, res) => {
@@ -16,7 +17,7 @@ const getAllUsers = async (req, res) => {
 
     res.json({ users, stats: stats[0] });
   } catch (error) {
-    console.error('Get users error:', error);
+    logger.error('Get users error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -38,7 +39,7 @@ const deleteUser = async (req, res) => {
 
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
-    console.error('Delete user error:', error);
+    logger.error('Delete user error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -61,7 +62,7 @@ const updateUserRole = async (req, res) => {
 
     res.json({ message: 'User role updated successfully' });
   } catch (error) {
-    console.error('Update role error:', error);
+    logger.error('Update role error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -99,7 +100,7 @@ const getDashboardStats = async (req, res) => {
       recentCourses
     });
   } catch (error) {
-    console.error('Get dashboard stats error:', error);
+    logger.error('Get dashboard stats error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -110,3 +111,4 @@ module.exports = {
   updateUserRole,
   getDashboardStats
 };
+

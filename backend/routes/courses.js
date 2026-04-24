@@ -8,11 +8,11 @@ const {
   deleteCourse,
   updateCourseStatus
 } = require('../controllers/courseController');
-const { auth, admin } = require('../middleware/auth');
+const { auth, admin, optionalAuth } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
 
-router.get('/', getAllCourses);
-router.get('/:id', auth, getCourse);
+router.get('/', optionalAuth, getAllCourses);
+router.get('/:id', optionalAuth, getCourse);
 router.post('/', auth, admin, upload.single('image'), createCourse);
 router.put('/:id', auth, admin, upload.single('image'), updateCourse);
 router.put('/:id/status', auth, admin, updateCourseStatus);

@@ -111,22 +111,10 @@ const CourseEditor = () => {
 
     setUploadingHandout(true);
     try {
-      const formData = new FormData();
-      formData.append('title', handoutForm.title);
-      formData.append('file', handoutForm.file);
-      
-      const response = await fetch(`/api/courses/${id}/handouts`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
+      await handoutAPI.add(id, {
+        title: handoutForm.title,
+        file: handoutForm.file
       });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Upload failed');
-      }
       
       toast.success('Handout uploaded successfully');
       setShowHandoutModal(false);

@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 const path = require('path');
 const fs = require('fs');
@@ -13,7 +14,7 @@ const getLessons = async (req, res) => {
 
     res.json(lessons);
   } catch (error) {
-    console.error('Get lessons error:', error);
+    logger.error('Get lessons error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -51,7 +52,7 @@ const createLesson = async (req, res) => {
       lesson: { id: result.insertId, course_id: courseId, title, content, video_url, video_file: videoFilePath, document_file: documentFilePath, document_type: documentFileType, order_num: orderNum }
     });
   } catch (error) {
-    console.error('Create lesson error:', error);
+    logger.error('Create lesson error:', error);
     res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
@@ -120,7 +121,7 @@ const updateLesson = async (req, res) => {
 
     res.json({ message: 'Lesson updated successfully' });
   } catch (error) {
-    console.error('Update lesson error:', error);
+    logger.error('Update lesson error:', error);
     res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
@@ -145,7 +146,7 @@ const deleteLesson = async (req, res) => {
 
     res.json({ message: 'Lesson deleted successfully' });
   } catch (error) {
-    console.error('Delete lesson error:', error);
+    logger.error('Delete lesson error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -156,3 +157,4 @@ module.exports = {
   updateLesson,
   deleteLesson
 };
+

@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { pool } = require('../config/database');
 
 const getMyNotifications = async (req, res) => {
@@ -13,7 +14,7 @@ const getMyNotifications = async (req, res) => {
 
     res.json(notifications);
   } catch (error) {
-    console.error('Get notifications error:', error);
+    logger.error('Get notifications error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -29,7 +30,7 @@ const markAsRead = async (req, res) => {
 
     res.json({ message: 'Notification marked as read' });
   } catch (error) {
-    console.error('Mark as read error:', error);
+    logger.error('Mark as read error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -43,7 +44,7 @@ const markAllAsRead = async (req, res) => {
 
     res.json({ message: 'All notifications marked as read' });
   } catch (error) {
-    console.error('Mark all as read error:', error);
+    logger.error('Mark all as read error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -57,7 +58,7 @@ const getUnreadCount = async (req, res) => {
 
     res.json({ count: result[0].count });
   } catch (error) {
-    console.error('Get unread count error:', error);
+    logger.error('Get unread count error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -68,3 +69,4 @@ module.exports = {
   markAllAsRead,
   getUnreadCount
 };
+
