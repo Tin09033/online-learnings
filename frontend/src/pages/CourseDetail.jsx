@@ -517,54 +517,71 @@ const CourseDetail = () => {
 
                   {announcements.length > 0 && (
                     <div className="card-raised p-6">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
-                        <Megaphone className="h-5 w-5" />
-                        <span>Announcements</span>
-                      </h3>
-                      <div className="space-y-4">
-                        {announcements.map((announcement) => (
-                          <div
-                            key={announcement.id}
-                            className={`p-4 rounded-xl ${
-                              announcement.priority === 'urgent'
-                                ? 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500'
-                                : announcement.priority === 'important'
-                                ? 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500'
-                                : 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500'
-                            }`}
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                          <Megaphone className="h-5 w-5" />
+                          <span>Announcements</span>
+                        </h3>
+                        {announcements.length > 1 && (
+                          <button
+                            onClick={() => setShowAnnouncements(!showAnnouncements)}
+                            className="text-primary-400 hover:text-primary-300 text-sm font-semibold flex items-center gap-1 transition-colors"
                           >
-                            <div className="flex items-start space-x-3">
-                              <div className="mt-1">
-                                {announcement.priority === 'urgent' ? (
-                                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                                ) : announcement.priority === 'important' ? (
-                                  <AlertCircle className="h-5 w-5 text-yellow-500" />
-                                ) : (
-                                  <Info className="h-5 w-5 text-blue-500" />
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center justify-between mb-1">
-                                  <h4 className="font-semibold text-gray-900 dark:text-white">{announcement.title}</h4>
-                                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                                    announcement.priority === 'urgent'
-                                      ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                                      : announcement.priority === 'important'
-                                      ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
-                                      : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                  }`}>
-                                    {announcement.priority}
-                                  </span>
-                                </div>
-                                <p className="text-gray-600 dark:text-gray-300 text-sm whitespace-pre-wrap">{announcement.content}</p>
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                                  {new Date(announcement.created_at).toLocaleDateString()}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                            {showAnnouncements ? 'Show Less' : `View All (${announcements.length})`}
+                            {showAnnouncements ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          </button>
+                        )}
                       </div>
+                      <AnimatePresence initial={false}>
+                        <div className="space-y-4 overflow-hidden">
+                          {(showAnnouncements ? announcements : announcements.slice(0, 1)).map((announcement, idx) => (
+                            <motion.div
+                              key={announcement.id}
+                              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                              animate={{ opacity: 1, height: 'auto', marginTop: idx > 0 ? 16 : 0 }}
+                              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className={`p-4 rounded-xl ${
+                                announcement.priority === 'urgent'
+                                  ? 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500'
+                                  : announcement.priority === 'important'
+                                  ? 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500'
+                                  : 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500'
+                              }`}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className="mt-1 flex-shrink-0">
+                                  {announcement.priority === 'urgent' ? (
+                                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                                  ) : announcement.priority === 'important' ? (
+                                    <AlertCircle className="h-5 w-5 text-yellow-500" />
+                                  ) : (
+                                    <Info className="h-5 w-5 text-blue-500" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <h4 className="font-semibold text-gray-900 dark:text-white truncate pr-2">{announcement.title}</h4>
+                                    <span className={`text-[10px] sm:text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ${
+                                      announcement.priority === 'urgent'
+                                        ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                                        : announcement.priority === 'important'
+                                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                                        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                    }`}>
+                                      {announcement.priority || 'normal'}
+                                    </span>
+                                  </div>
+                                  <p className="text-gray-600 dark:text-gray-300 text-sm whitespace-pre-wrap">{announcement.content}</p>
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                    {new Date(announcement.created_at).toLocaleDateString()}
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </AnimatePresence>
                     </div>
                   )}
                 </div>

@@ -15,11 +15,14 @@ import {
   X,
   Maximize2,
   List,
-  Award
+  Award,
+  Eye,
+  ExternalLink
 } from 'lucide-react';
 import { coursesAPI, lessonProgressAPI, handoutAPI } from '../services/api';
 import { toast } from 'react-toastify';
 import { getHandoutUrl, getVideoUrl, getDocumentUrl } from '../utils/apiUrl';
+import PdfViewerModal from '../components/PdfViewerModal';
 
 const CourseLearning = () => {
   const { id } = useParams();
@@ -32,6 +35,9 @@ const CourseLearning = () => {
   const [completing, setCompleting] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Mobile-only states
+  const [mobileLessonsOpen, setMobileLessonsOpen] = useState(false);
+  const [pdfViewer, setPdfViewer] = useState(null); // { url, title }
 
   useEffect(() => {
     fetchCourse();
@@ -257,27 +263,135 @@ const CourseLearning = () => {
           )}
         </AnimatePresence>
 
+        {/* ── Mobile Lesson Drawer (bottom sheet) ── */}
+        <AnimatePresence>
+          {mobileLessonsOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileLessonsOpen(false)}
+                className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm lg:hidden"
+              />
+              {/* Sheet */}
+              <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+                className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 rounded-t-[2rem] max-h-[80dvh] flex flex-col lg:hidden shadow-2xl"
+              >
+                {/* Handle */}
+                <div className="flex-shrink-0 flex flex-col items-center pt-3 pb-4 px-6 border-b border-gray-100 dark:border-gray-700">
+                  <div className="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mb-4" />
+                  <div className="w-full flex items-center justify-between">
+                    <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">Lessons</h3>
+                    <button onClick={() => setMobileLessonsOpen(false)} className="text-gray-400 hover:text-gray-700 dark:hover:text-white">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  {/* Progress mini-bar */}
+                  <div className="w-full mt-3">
+                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">
+                      <span>Progress</span><span>{progress}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary-gradient" style={{ width: `${progress}%` }} />
+                    </div>
+                  </div>
+                </div>
+                {/* Lesson list */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                  {course?.lessons?.map((lesson, index) => {
+                    const isCompleted = course.lessonProgress?.[lesson.id]?.completed;
+                    const isActive = selectedLesson?.id === lesson.id;
+                    return (
+                      <button
+                        key={lesson.id}
+                        onClick={() => { handleLessonSelect(lesson, index); setMobileLessonsOpen(false); }}
+                        className={`w-full text-left p-4 rounded-2xl transition-all flex items-center gap-4
+                          ${isActive
+                            ? 'bg-primary-gradient text-white shadow-dual-md'
+                            : 'bg-gray-50 dark:bg-gray-700/50'}`}
+                      >
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0
+                          ${isActive ? 'bg-white/20' : isCompleted ? 'bg-green-100 dark:bg-green-900/40 text-green-600' : 'bg-gray-200 dark:bg-gray-600'}`}>
+                          {isCompleted ? <CheckCircle className="h-4 w-4" /> : <span className="text-xs font-bold">{index + 1}</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-bold truncate ${isActive ? 'text-white' : 'text-gray-900 dark:text-white'}`}>{lesson.title}</p>
+                          <p className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-white/60' : 'text-gray-400'}`}>{lesson.duration || '10 min'}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {/* Handouts in mobile drawer too */}
+                  {handouts.length > 0 && (
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 px-1">Handouts</h4>
+                      <div className="space-y-2">
+                        {handouts.map((handout) => (
+                          <button
+                            key={handout.id}
+                            onClick={() => { setPdfViewer({ url: getHandoutUrl(handout.file_path), title: handout.title }); setMobileLessonsOpen(false); }}
+                            className="w-full flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 text-left"
+                          >
+                            <FileText className="h-4 w-4 text-primary-500 flex-shrink-0" />
+                            <span className="text-xs font-bold text-gray-700 dark:text-gray-300 truncate">{handout.title}</span>
+                            <Eye className="h-3.5 w-3.5 text-gray-400 ml-auto flex-shrink-0" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* ── PDF Viewer Modal ── */}
+        {pdfViewer && (
+          <PdfViewerModal
+            url={pdfViewer.url}
+            title={pdfViewer.title}
+            onClose={() => setPdfViewer(null)}
+          />
+        )}
+
         {/* Main Learning Content */}
         <main className="flex-1 overflow-y-auto relative bg-gray-50 dark:bg-gray-900 transition-all duration-300">
-          <header className="sticky top-0 z-30 p-6 flex items-center justify-between lg:justify-start gap-4 pointer-events-none">
+          <header className="sticky top-0 z-30 p-4 sm:p-6 flex items-center justify-between gap-4 pointer-events-none">
+            {/* Desktop sidebar toggle */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-premium-sm pointer-events-auto hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700 group"
+              className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-premium-sm pointer-events-auto hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-100 dark:border-gray-700 hidden lg:flex items-center justify-center"
             >
               {sidebarOpen ? <X className="h-5 w-5 text-gray-500" /> : <List className="h-5 w-5 text-primary-500" />}
             </button>
+            {/* Mobile: lesson list button */}
+            <button
+              onClick={() => setMobileLessonsOpen(true)}
+              className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-premium-sm pointer-events-auto border border-gray-100 dark:border-gray-700 flex items-center gap-2 lg:hidden"
+            >
+              <List className="h-5 w-5 text-primary-500" />
+              <span className="text-xs font-black text-gray-600 dark:text-gray-300">{currentLessonIndex + 1}/{totalLessons}</span>
+            </button>
+            {/* Course title shown when desktop sidebar is closed */}
             {!sidebarOpen && (
-              <motion.h1 
+              <motion.h1
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-lg font-black text-gray-900 dark:text-white tracking-tight pointer-events-auto"
+                className="text-lg font-black text-gray-900 dark:text-white tracking-tight pointer-events-auto hidden lg:block"
               >
                 {course.title}
               </motion.h1>
             )}
           </header>
 
-          <div className="max-w-5xl mx-auto px-6 pb-24">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-40 lg:pb-24">
             <motion.div 
               layout
               className="space-y-8"
@@ -323,30 +437,44 @@ const CourseLearning = () => {
                     </div>
                   </div>
 
-                  {/* Documents */}
+                  {/* Documents — responsive card */}
                   {selectedLesson.document_file && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-premium-sm flex items-center justify-between group overflow-hidden relative"
+                      className="p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-premium-sm group overflow-hidden relative"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center text-primary-500 group-hover:scale-110 transition-transform">
-                          <FileText className="h-6 w-6" />
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center text-primary-500 flex-shrink-0">
+                            <FileText className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 dark:text-white">Lesson Resources</p>
+                            <p className="text-xs text-gray-500">Support materials for this module</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-bold text-gray-900 dark:text-white">Lesson Resources</p>
-                          <p className="text-xs text-gray-500">Support materials for this module</p>
+                        {/* Action buttons — full-width on mobile */}
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                          {/* View inline (PDF modal) */}
+                          <button
+                            onClick={() => setPdfViewer({ url: getDocumentUrl(selectedLesson.document_file), title: 'Lesson Resources' })}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-black hover:bg-gray-200 dark:hover:bg-gray-600 transition-all active:scale-95"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          {/* Download */}
+                          <a
+                            href={getDocumentUrl(selectedLesson.document_file)}
+                            download
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-gradient text-white rounded-xl text-sm font-black shadow-dual-sm hover:shadow-dual-md transition-all active:scale-95"
+                          >
+                            <Download className="h-4 w-4" />
+                            Download
+                          </a>
                         </div>
                       </div>
-                      <a
-                        href={getDocumentUrl(selectedLesson.document_file)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-6 py-2 bg-primary-gradient text-white rounded-xl text-sm font-black shadow-dual-sm hover:shadow-dual-md transition-all active:scale-95"
-                      >
-                        Download
-                      </a>
                     </motion.div>
                   )}
 
