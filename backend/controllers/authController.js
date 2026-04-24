@@ -21,13 +21,23 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
   const isProduction = process.env.NODE_ENV === 'production';
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'strict' : 'lax',
+    secure: isProduction,           // HTTPS only in production
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-domain withCredentials
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days (matches refresh token)
   };
 
   res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
   res.cookie('refreshToken', refreshToken, cookieOptions);
+};
+
+// Shared cookie clear options must mirror set options exactly for cross-domain clearing
+const clearCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax'
+  };
 };
 
 const register = async (req, res) => {
@@ -151,8 +161,9 @@ const logout = async (req, res) => {
     if (token) {
       await pool.query('DELETE FROM refresh_tokens WHERE token = ?', [token]);
     }
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    const opts = clearCookieOptions();
+    res.clearCookie('accessToken', opts);
+    res.clearCookie('refreshToken', opts);
     res.json({ message: 'Logged out successfully' });
   } catch (error) {
     logger.error('Logout error:', error);

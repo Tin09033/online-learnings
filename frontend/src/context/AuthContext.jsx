@@ -1,36 +1,70 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  // Seed from localStorage so pages don't flash-redirect on hard refresh
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+
+  const setUserAndPersist = useCallback((userData) => {
+    setUser(userData);
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, []);
+
+  // Listen for the axios interceptor event so we can navigate via React Router
+  // instead of window.location.href (which crashes framer-motion animations)
+  useEffect(() => {
+    const handleForceLogout = () => {
+      setUserAndPersist(null);
+      if (window.location.pathname !== '/login') {
+        navigateRef.current('/login', { replace: true });
+      }
+    };
+    window.addEventListener('auth:logout-required', handleForceLogout);
+    return () => window.removeEventListener('auth:logout-required', handleForceLogout);
+  }, [setUserAndPersist]);
 
   useEffect(() => {
     const initAuth = async () => {
       try {
         const response = await authAPI.getMe();
-        // Backend returns { user: { ... } }
-        setUser(response.data.user || response.data);
+        const userData = response.data.user || response.data;
+        setUserAndPersist(userData);
       } catch (error) {
-        // Not logged in or session expired
-        setUser(null);
+        // If /auth/me fails, clear persisted user — interceptor handles redirect
+        setUserAndPersist(null);
       } finally {
         setLoading(false);
       }
     };
     initAuth();
-  }, []);
+  }, [setUserAndPersist]);
 
   const refreshUser = async () => {
     try {
       const response = await authAPI.getMe();
       const userData = response.data.user || response.data;
-      setUser(userData);
+      setUserAndPersist(userData);
       return userData;
     } catch (error) {
-      setUser(null);
+      setUserAndPersist(null);
       return null;
     }
   };
@@ -38,14 +72,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const response = await authAPI.login({ email, password });
     const userData = response.data.user;
-    setUser(userData);
+    setUserAndPersist(userData);
     return userData;
   };
 
   const register = async (name, email, password) => {
     const response = await authAPI.register({ name, email, password });
     const userData = response.data.user;
-    setUser(userData);
+    setUserAndPersist(userData);
     return userData;
   };
 
@@ -55,7 +89,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      setUser(null);
+      setUserAndPersist(null);
     }
   };
 

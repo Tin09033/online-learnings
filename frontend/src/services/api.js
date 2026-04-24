@@ -73,9 +73,11 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError);
         localStorage.removeItem('user');
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
+        // Dispatch a custom event instead of hard-redirecting.
+        // Hard redirects (window.location.href) force-unmount framer-motion
+        // animations mid-tween, crashing with "t() is undefined".
+        // AuthContext listens for this event and uses React Router navigate().
+        window.dispatchEvent(new CustomEvent('auth:logout-required'));
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
