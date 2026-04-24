@@ -10,7 +10,9 @@ import {
   ArrowRight,
   PlayCircle,
   Award,
-  Calendar
+  Calendar,
+  Search,
+  Settings
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
